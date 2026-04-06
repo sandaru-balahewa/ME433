@@ -2,10 +2,10 @@
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 
-#define PWMPIN 18
+#define PWMPIN 28
 #define WRAP 60000
-#define SERVO_PULSE_L_BOUND 0.05
-#define SERVO_PULSE_U_BOUND 0.10
+#define SERVO_PULSE_L_BOUND 0.025
+#define SERVO_PULSE_U_BOUND 0.125
 
 void set_servo(int angle){
     float duty = ((SERVO_PULSE_U_BOUND-SERVO_PULSE_L_BOUND)* angle/180.0 + SERVO_PULSE_L_BOUND) * WRAP;
@@ -31,10 +31,12 @@ int main()
 
 
     while (true) {
+        // 0 to 180 degrees
         for (int i=0; i<=180; i++){
             set_servo(i);
             sleep_ms(10);
         }
+        // 180 to 0 degrees
         for (int j=180; j>=0; j--){
             set_servo(j);
             sleep_ms(10);
