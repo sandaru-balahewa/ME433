@@ -29,6 +29,7 @@ int main()
 {
     stdio_init_all();
 
+    // Initialize the debug LED
     gpio_init(LED_DEBUG);
     gpio_set_dir(LED_DEBUG, GPIO_OUT);
     gpio_put(LED_DEBUG, 0);
@@ -51,6 +52,7 @@ int main()
     while (true) {
         // blinking led on pico for debugging purposes
         gpio_put(LED_DEBUG, state);
+
         // read from GPIO register
         temp_reg = read_pin(CHIP_ADDRESS, GPIO_REG);
 
@@ -60,10 +62,12 @@ int main()
             set_pin(CHIP_ADDRESS, OLAT_REG, 0b10000000);
         }
         else{
+            // turn off led
             set_pin(CHIP_ADDRESS, OLAT_REG, 0x00000000);
         }
 
+        // change the state of debug led
         state = !state;
-        sleep_ms(100);
+        sleep_ms(50);
     }
 }
