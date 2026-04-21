@@ -104,7 +104,7 @@ int main()
         sprintf(line1, "ADC0 voltage is %.2f V", voltage);
         sprintf(line2, "Go! U Northwestern!");
         sprintf(line3, "Fight for victory.");
-        sprintf(line4, "FPS = %6.3f", fps);
+        sprintf(line4, "FPS = %7.4f", fps);
 
         // write to oled screen
         draw_message(0, 0, line1);
@@ -121,6 +121,6 @@ int main()
         // calculate fps
         fps = 1.0 / (t / 1000000.0);
 
-        sleep_ms(200);
+        sleep_ms(500);
     }
 }
