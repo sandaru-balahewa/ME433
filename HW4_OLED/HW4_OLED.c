@@ -16,8 +16,10 @@
 
 void draw_letter(unsigned char x, unsigned char y, char letter){
     int letter_num = (int) letter - 32;
+    // iterate for each column of ascii bitmap
     for (int i = 0; i < 5; i++){
         char col = ASCII[letter_num][i];
+        // draw each bit in the column
         for (int j = 0; j < 8; j++){
             unsigned char bit = (col >> j) & 0b1;
             ssd1306_drawPixel(x + i, y + j, bit);
@@ -32,6 +34,7 @@ void draw_message(unsigned char x, unsigned char y, char *message){
     while (message[i] != 0){
         draw_letter(new_x, new_y, message[i]);
         i++;
+        // calculate new_x and new_y positions
         if (new_x + 9 > 127){
             new_x = 0;
             new_y = new_y + 8;
@@ -60,6 +63,7 @@ int main()
     gpio_pull_up(I2C_SDA);
     gpio_pull_up(I2C_SCL);
 
+    // initialize the display
     ssd1306_setup();
     ssd1306_clear();
     ssd1306_update();
@@ -118,6 +122,6 @@ int main()
         // write the fps value to screen
         draw_message(0, 24, speed);
         ssd1306_update();
-        sleep_ms(100);
+        sleep_ms(200);
     }
 }
