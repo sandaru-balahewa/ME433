@@ -81,6 +81,12 @@ int main()
 
     absolute_time_t t_start, t_end;
     uint64_t t;
+    float fps = 0.0;
+
+    char line1[30];
+    char line2[30];
+    char line3[30];
+    char line4[30];
 
     while (true) {
         // get start time
@@ -93,20 +99,18 @@ int main()
 
         // Read ADC
         uint16_t pot = adc_read();
-        float voltage = pot * 3.3 / 4096.0;
-
-        char line1[30];
-        char line2[30];
-        char line3[30];
+        float voltage = pot * 3.3 / 4095.0;
 
         sprintf(line1, "ADC0 voltage is %.2f V", voltage);
         sprintf(line2, "Go! U Northwestern!");
         sprintf(line3, "Fight for victory.");
+        sprintf(line4, "FPS = %6.3f", fps);
 
         // write to oled screen
         draw_message(0, 0, line1);
         draw_message(0, 8, line2);
         draw_message(0, 16, line3);
+        draw_message(0, 24, line4);
         ssd1306_update();
 
         // get end time
@@ -115,13 +119,8 @@ int main()
         t = to_us_since_boot(t_end) - to_us_since_boot(t_start);
 
         // calculate fps
-        float fps = 1.0 / (t / 1000000.0);
-        char speed[30];
-        sprintf(speed, "FPS = %6.3f  ", fps);
+        fps = 1.0 / (t / 1000000.0);
 
-        // write the fps value to screen
-        draw_message(0, 24, speed);
-        ssd1306_update();
         sleep_ms(200);
     }
 }
