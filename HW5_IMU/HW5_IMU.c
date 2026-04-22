@@ -130,7 +130,7 @@ int main()
         }
         temp = (float) imu_proc_data[3] / 340.0 + 36.53;
 
-        printf("X_Accel: %i g, Y_Accel: %i g, Z_Accel: %i g\n", imu_proc_data[0], imu_proc_data[1], imu_proc_data[2]);
+        printf("X_Accel: %i, Y_Accel: %i, Z_Accel: %i\n", imu_proc_data[0], imu_proc_data[1], imu_proc_data[2]);
 
         printf("X_Accel: %.3f g, Y_Accel: %.3f g, Z_Accel: %.3f g\n", accel[0], accel[1], accel[2]);
         printf("Gyro X: %.3f dps, Gyro Y: %.3f dps, Gyro Z: %.3f dps\n", gyro[0], gyro[1], gyro[2]);
