@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "oled.h"
+#include "ssd1306.h"
 
 // I2C defines
-#define I2C_PORT i2c0
+#define I2C_PORT i2c_default
+// #define I2C_SDA 4
+// #define I2C_SCL 5
 #define I2C_SDA 4
 #define I2C_SCL 5
 
@@ -16,6 +20,7 @@
 #define ACCEL_CONFIG 0x1C
 #define PWR_MGMT_1 0x6B
 #define PWR_MGMT_2 0x6C
+
 // sensor data registers:
 #define ACCEL_XOUT_H 0x3B
 #define ACCEL_XOUT_L 0x3C
@@ -74,19 +79,27 @@ int main()
 {
     stdio_init_all();
 
-    // I2C Initialisation. Using it at 400Khz.
-    i2c_init(I2C_PORT, 400*1000);
-    
-    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
-    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
-    // gpio_pull_up(I2C_SDA);
-    // gpio_pull_up(I2C_SCL);
-
     // Initialize the debug LED
     gpio_init(LED_DEBUG);
     gpio_set_dir(LED_DEBUG, GPIO_OUT);
     gpio_put(LED_DEBUG, 0);
+    
+    // setting SDA and SCL pins for I2C
+    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+    // gpio_set_function(I2C_SDA_OLED, GPIO_FUNC_I2C);
+    // gpio_set_function(I2C_SCL_OLED, GPIO_FUNC_I2C);
 
+    gpio_pull_up(I2C_SDA);
+    gpio_pull_up(I2C_SCL);
+
+    // I2C Initialisation. Using it at 1700Khz.
+    i2c_init(I2C_PORT, 400*1000);
+
+    // initialize the display
+    init_display();
+
+    //initialize the IMU
     init_MCP6050();
     unsigned char who_am_i = read_pin(MPU6050_ADDRESS, WHO_AM_I);
     if (who_am_i != 0x68){
@@ -102,6 +115,7 @@ int main()
     float temp;
 
     while (true) {
+        ssd1306_clear();
         read_imu_data();
         process_imu_data();
 
@@ -116,9 +130,21 @@ int main()
         }
         temp = (float) imu_proc_data[3] / 340.0 + 36.53;
 
+        printf("X_Accel: %i g, Y_Accel: %i g, Z_Accel: %i g\n", imu_proc_data[0], imu_proc_data[1], imu_proc_data[2]);
+
         printf("X_Accel: %.3f g, Y_Accel: %.3f g, Z_Accel: %.3f g\n", accel[0], accel[1], accel[2]);
         printf("Gyro X: %.3f dps, Gyro Y: %.3f dps, Gyro Z: %.3f dps\n", gyro[0], gyro[1], gyro[2]);
         printf("Temperature: %.1f C\n", temp);
-        sleep_ms(200);
+
+        // Drawing lines
+        int dx = imu_proc_data[0] * 64 / 32768;
+        int dy = imu_proc_data[1] * 16 / 32768;
+
+        int x1 = 64 + dx;
+        int y1 = 16 - dy; // oled screen's y axis points down
+
+        draw_line(64, 16, x1, y1);
+        ssd1306_update();
+        sleep_ms(10);
     }
 }
