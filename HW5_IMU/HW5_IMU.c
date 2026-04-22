@@ -33,9 +33,10 @@
 #define GYRO_ZOUT_L  0x48
 #define WHO_AM_I     0x75
 
-char imu_raw_data[14];
+unsigned char imu_raw_data[14];
 int16_t imu_proc_data[7];
 
+#define LED_DEBUG 18
 
 void set_pin(unsigned char address, unsigned char reg, unsigned char val){
     unsigned char buf[2] = {reg, val};
@@ -56,15 +57,16 @@ void init_MCP6050(){
 }
 
 void read_imu_data(){
-    i2c_write_blocking(I2C_PORT, MPU6050_ADDRESS, ACCEL_XOUT_H, 1, true);
-    i2c_read_blocking(I2C_PORT, MPU6050_ADDRESS, &imu_raw_data, 14, false);
+    unsigned char reg = ACCEL_XOUT_H;
+    i2c_write_blocking(I2C_PORT, MPU6050_ADDRESS, &reg, 1, true);
+    i2c_read_blocking(I2C_PORT, MPU6050_ADDRESS, imu_raw_data, 14, false);
 }
 
 void process_imu_data(){
     for (int i = 0; i < 7; i++){
-        char first_byte = imu_raw_data[2 * i];
-        char second_byte = imu_raw_data[2 * i + 1];
-        imu_proc_data[i] = (first_byte << 8) | second_byte;
+        unsigned char first_byte = imu_raw_data[2 * i];
+        unsigned char second_byte = imu_raw_data[(2 * i) + 1];
+        imu_proc_data[i] =  (int16_t) (first_byte << 8) | second_byte;
     }
 }
 
@@ -80,14 +82,43 @@ int main()
     // gpio_pull_up(I2C_SDA);
     // gpio_pull_up(I2C_SCL);
 
+    // Initialize the debug LED
+    gpio_init(LED_DEBUG);
+    gpio_set_dir(LED_DEBUG, GPIO_OUT);
+    gpio_put(LED_DEBUG, 0);
+
     init_MCP6050();
+    unsigned char who_am_i = read_pin(MPU6050_ADDRESS, WHO_AM_I);
+    if (who_am_i != 0x68){
+        while (true)
+        {
+            printf("IMU not correctly initialized\n");
+            gpio_put(LED_DEBUG, 1);
+        }
+    }
+
+    float accel[3];
+    float gyro[3];
+    float temp;
 
     while (true) {
-        printf("Hello, world!\n");
         read_imu_data();
         process_imu_data();
 
-        print(imu_proc_data[0], imu_proc_data[1], imu_proc_data[2]);
-        sleep_ms(100);
+        for (int i=0; i<3; i++){
+            accel[i] = (float) imu_proc_data[i] * 0.000061;
+        }
+
+        int j = 0;
+        for (int i=4; i<7; i++){
+            gyro[j] = (float) imu_proc_data[i] * 0.007630;
+            j++;
+        }
+        temp = (float) imu_proc_data[3] / 340.0 + 36.53;
+
+        printf("X_Accel: %.3f g, Y_Accel: %.3f g, Z_Accel: %.3f g\n", accel[0], accel[1], accel[2]);
+        printf("Gyro X: %.3f dps, Gyro Y: %.3f dps, Gyro Z: %.3f dps\n", gyro[0], gyro[1], gyro[2]);
+        printf("Temperature: %.1f C\n", temp);
+        sleep_ms(200);
     }
 }
