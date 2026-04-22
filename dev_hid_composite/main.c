@@ -26,11 +26,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "pico/stdlib.h"
 
 #include "bsp/board_api.h"
 #include "tusb.h"
 
 #include "usb_descriptors.h"
+
+#define MOUSE_MODE_PB 9
 
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
@@ -56,6 +59,11 @@ void hid_task(void);
 int main(void)
 {
   board_init();
+
+  // initialize the mouse mode push button
+  gpio_init(MOUSE_MODE_PB);
+  gpio_set_dir(MOUSE_MODE_PB, GPIO_IN);
+  gpio_pull_up(MOUSE_MODE_PB);
 
   // init device stack on configured roothub port
   tud_init(BOARD_TUD_RHPORT);
@@ -138,10 +146,11 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
 
     case REPORT_ID_MOUSE:
     {
-      int8_t const delta = 5;
+      int8_t deltax = 5;
+      int8_t deltay = 5;
 
       // no button, right + down, no scroll, no pan
-      tud_hid_mouse_report(REPORT_ID_MOUSE, 0x00, delta, delta, 0, 0);
+      tud_hid_mouse_report(REPORT_ID_MOUSE, 0x00, deltax, deltay, 0, 0);
     }
     break;
 
@@ -220,7 +229,7 @@ void hid_task(void)
   }else
   {
     // Send the 1st of report chain, the rest will be sent by tud_hid_report_complete_cb()
-    send_hid_report(REPORT_ID_KEYBOARD, btn);
+    send_hid_report(REPORT_ID_MOUSE, btn);
   }
 }
 
