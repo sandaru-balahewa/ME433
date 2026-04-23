@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
+#include <math.h>
 
 #include "bsp/board_api.h"
 #include "tusb.h"
@@ -145,9 +146,35 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
     break;
 
     case REPORT_ID_MOUSE:
-    {
-      int8_t deltax = 5;
-      int8_t deltay = 5;
+    { 
+      int8_t deltax = 0;
+      int8_t deltay = 0;
+      // for remote working mode
+      const float radius = 10.0;
+      static float theta = 0.0;
+
+      static float prev_x = 10.0;
+      static float prev_y = 0.0;
+
+      // check if the button is pushed
+      if (gpio_get(MOUSE_MODE_PB) == 0){
+        // remote working mode
+        float x = radius * cos(theta);
+        float y = radius * sin(theta);
+
+        deltax = (int8_t) (x - prev_x);
+        deltay = (int8_t) (y - prev_y);
+
+        theta += 0.2;
+
+        if (theta >= 2*3.1415){
+          theta = 0.0;
+        }
+        
+      }
+      else{
+        // Use IMU data
+      }
 
       // no button, right + down, no scroll, no pan
       tud_hid_mouse_report(REPORT_ID_MOUSE, 0x00, deltax, deltay, 0, 0);
