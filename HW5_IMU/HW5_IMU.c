@@ -5,11 +5,11 @@
 #include "ssd1306.h"
 
 // I2C defines
-#define I2C_PORT i2c_default
-// #define I2C_SDA 4
-// #define I2C_SCL 5
+#define I2C_PORT i2c0
 #define I2C_SDA 4
 #define I2C_SCL 5
+// #define I2C_SDA_OLED 12
+// #define I2C_SCL_OLED 13
 
 // MPU6050 defines
 #define MPU6050_ADDRESS 0x68
@@ -92,12 +92,15 @@ int main()
 
     gpio_pull_up(I2C_SDA);
     gpio_pull_up(I2C_SCL);
+    // gpio_pull_up(I2C_SDA_IMU);
+    // gpio_pull_up(I2C_SCL_IMU);
 
     // I2C Initialisation. Using it at 1700Khz.
     i2c_init(I2C_PORT, 400*1000);
 
     // initialize the display
     init_display();
+    sleep_ms(20);
 
     //initialize the IMU
     init_MCP6050();
@@ -140,8 +143,8 @@ int main()
         int dx = imu_proc_data[0] * 64 / 32768;
         int dy = imu_proc_data[1] * 16 / 32768;
 
-        int x1 = 64 + dx;
-        int y1 = 16 - dy; // oled screen's y axis points down
+        int x1 = 64 - dx*2;
+        int y1 = 16 + dy*2; // oled screen's y axis points down
 
         draw_line(64, 16, x1, y1);
         ssd1306_update();
