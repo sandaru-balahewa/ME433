@@ -216,6 +216,12 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
       }
       else{
         // Use IMU data
+        read_imu_data(imu_raw_data);
+        process_imu_data(imu_proc_data, imu_raw_data);
+        
+        printf("X_Accel: %i, Y_Accel: %i, Z_Accel: %i\n", imu_proc_data[0], imu_proc_data[1], imu_proc_data[2]);
+        deltax = (int8_t) (imu_proc_data[0]/32768.0*20.0) * (-1);
+        deltay = (int8_t) (imu_proc_data[1]/32768.0*20.0);
       }
 
       // no button, right + down, no scroll, no pan
