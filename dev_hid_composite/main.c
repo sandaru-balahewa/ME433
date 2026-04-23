@@ -34,7 +34,13 @@
 
 #include "usb_descriptors.h"
 
+#include "imu_library.h"
+
 #define MOUSE_MODE_PB 9
+
+
+unsigned char imu_raw_data[14];
+int16_t imu_proc_data[7];
 
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
@@ -68,6 +74,38 @@ int main(void)
 
   // init device stack on configured roothub port
   tud_init(BOARD_TUD_RHPORT);
+
+  // =====initialize the IMU=====
+
+  // Initialize the debug LED
+    gpio_init(LED_DEBUG);
+    gpio_set_dir(LED_DEBUG, GPIO_OUT);
+    gpio_put(LED_DEBUG, 0);
+    
+    // setting SDA and SCL pins for I2C
+    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+
+    gpio_pull_up(I2C_SDA);
+    gpio_pull_up(I2C_SCL);
+
+    // I2C Initialisation. Using it at 1700Khz.
+    i2c_init(I2C_PORT, 400*1000);
+
+    //initialize the IMU
+    init_MPU6050();
+    unsigned char who_am_i = read_pin(MPU6050_ADDRESS, WHO_AM_I);
+    if (who_am_i != 0x68){
+        while (true)
+        {
+            printf("IMU not correctly initialized\n");
+            gpio_put(LED_DEBUG, 1);
+        }
+    }
+
+    float accel[3];
+    float gyro[3];
+    float temp;
 
   if (board_init_after_tusb) {
     board_init_after_tusb();
