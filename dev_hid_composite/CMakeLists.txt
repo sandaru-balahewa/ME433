@@ -39,6 +39,9 @@ cmake_minimum_required(VERSION 3.13)
 
 add_executable(dev_hid_composite imu_library.c)
 
+# Modify the below lines to enable/disable output over UART/USB
+pico_enable_stdio_usb(dev_hid_composite main 1)
+
 target_sources(dev_hid_composite PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/main.c
         ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
