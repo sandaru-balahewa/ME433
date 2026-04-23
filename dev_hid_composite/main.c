@@ -150,10 +150,10 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
       int8_t deltax = 0;
       int8_t deltay = 0;
       // for remote working mode
-      const float radius = 10.0;
+      const float radius = 100.0;
       static float theta = 0.0;
 
-      static float prev_x = 10.0;
+      static float prev_x = 100.0;
       static float prev_y = 0.0;
 
       // check if the button is pushed
@@ -162,14 +162,18 @@ static void send_hid_report(uint8_t report_id, uint32_t btn)
         float x = radius * cos(theta);
         float y = radius * sin(theta);
 
-        deltax = (int8_t) (x - prev_x);
-        deltay = (int8_t) (y - prev_y);
+        deltax = (int8_t) roundf(x - prev_x);
+        deltay = (int8_t) roundf(y - prev_y);
 
-        theta += 0.2;
+        prev_x = x;
+        prev_y = y;
+
+        theta += 0.1;
 
         if (theta >= 2*3.1415){
           theta = 0.0;
         }
+
         
       }
       else{
