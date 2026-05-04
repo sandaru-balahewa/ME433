@@ -46,6 +46,7 @@ int main()
 
     // flag for going up and down in the triangle wave
     bool tri_going_up = true;
+    
     while (true) {
         // Calculate the sine wave voltage
         sine_voltage = (sin(2*M_PI*sine_freq*t) + 1) / 2 * 3.3;
