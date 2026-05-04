@@ -20,7 +20,7 @@ int main()
     stdio_init_all();
 
     // SPI initialization
-    spi_init(SPI_PORT, 1000*1000); // the baud, or bits per second
+    spi_init(SPI_PORT, 20000*1000); // the baud, or bits per second
     gpio_set_function(PIN_SDI, GPIO_FUNC_SPI);
     gpio_set_function(PIN_CS,   GPIO_FUNC_SIO);
     gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
@@ -46,7 +46,7 @@ int main()
 
     // flag for going up and down in the triangle wave
     bool tri_going_up = true;
-    
+
     while (true) {
         // Calculate the sine wave voltage
         sine_voltage = (sin(2*M_PI*sine_freq*t) + 1) / 2 * 3.3;
