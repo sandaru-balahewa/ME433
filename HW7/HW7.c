@@ -57,11 +57,11 @@ int main()
         }
         else{
             tri_voltage -= tri_step;
-            if (tri_voltage <= 0)
+            if (tri_voltage <= 0){
+                tri_voltage = 0;
+                tri_going_up = true;
+            }
         }
-        tri = 2 * fabs(2*(t * tri_freq - floor(t * tri_freq + 0.5)));
-        tri_voltage = tri * 3.3;
-
 
         // call writeDAC
         writeDAC(0, sine_voltage);
