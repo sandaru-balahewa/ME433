@@ -34,14 +34,17 @@ int main()
     int sine_freq = 2;
     int tri_freq = 1;
 
-    //Update 50x faster than the frequency of the waves
+    //Update at least 50x faster than the frequency of the waves
 
     float t = 0;
-    float dt = 0.01;
+    float dt = 0.001; // we're updating at 1000Hz
     float sine_voltage;
     float tri_voltage = 0;
 
+    // Calculate the step for the triangle wave
     float tri_step = 3.3 / (((1.0 / tri_freq) / 2) / dt);
+
+    // flag for going up and down in the triangle wave
     bool tri_going_up = true;
     while (true) {
         // Calculate the sine wave voltage
@@ -66,8 +69,8 @@ int main()
         // call writeDAC
         writeDAC(0, sine_voltage);
         writeDAC(1, tri_voltage);
-        t += 0.01;
-        sleep_ms(10);
+        t += dt;
+        sleep_ms(1);
     }
 }
 
