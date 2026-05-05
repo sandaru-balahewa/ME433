@@ -21,16 +21,28 @@ int main()
 {
     stdio_init_all();
 
-    // SPI initialization for DAC
-    spi_init(SPI_PORT, 20000*1000); // the baud, or bits per second
+    // SPI initialization
+    spi_init(SPI_PORT, 1000*1000); // the baud, or bits per second
     gpio_set_function(PIN_SDI, GPIO_FUNC_SPI);
-    gpio_set_function(DAC_PIN_CS,   GPIO_FUNC_SIO);
     gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
     gpio_set_function(PIN_SDO, GPIO_FUNC_SPI);
-    
+
+
+    // SPI_DAC Initialization
+
+    gpio_set_function(DAC_PIN_CS,   GPIO_FUNC_SIO);
     // Chip select is active-low, so we'll initialise it to a driven-high state
     gpio_set_dir(DAC_PIN_CS, GPIO_OUT);
     gpio_put(DAC_PIN_CS, 1);
+
+
+    // SPI_RAM Initialization
+    gpio_set_function(RAM_PIN_CS,   GPIO_FUNC_SIO);
+    // Chip select is active-low, so we'll initialise it to a driven-high state
+    gpio_set_dir(RAM_PIN_CS, GPIO_OUT);
+    gpio_put(RAM_PIN_CS, 1);
+
+    spi_ram_init();
 
     // Sine wave at 2 Hz
     int sine_freq = 2;
@@ -57,6 +69,15 @@ int main()
 
         sine_wave_arr[i] = (data[0] << 8) | data[1];
         t += dt;
+    }
+
+    // Write the data to the RAM
+    for (uint16_t i = 0; i < 1000; i++){
+        uint8_t data[2];
+        data[0] = (sine_wave_arr[i] >> 8) & 0xFF;
+        data[1] = sine_wave_arr[i] & 0xFF;
+
+        spi_ram_write(i * 2, data, 2); // in each loop write the low and high bytes of the DAC data
     }
     
     float sine_voltage;
