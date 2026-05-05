@@ -14,8 +14,9 @@
 
 static inline void cs_deselect(uint cs_pin);
 static inline void cs_select(uint cs_pin);
-void writeDAC(int channel, float v);
 void spi_ram_init();
+void spi_ram_write(uint16_t address, uint8_t *data, int len);
+void spi_ram_read(uint16_t address, uint8_t *data, int len);
 
 int main()
 {
@@ -95,28 +96,6 @@ int main()
         }
         sleep_ms(1);
     }
-}
-
-void writeDAC(int channel, float v){
-
-    uint8_t data[2];
-
-    data[0] = 0b01110000;
-    
-    // putting the channel bit in
-    data[0] = data[0] | ((channel & 0b1) << 7);
-
-    uint16_t voltage = v / 3.3 * 1023; // 0b1111111111 10 bit number
-
-    // put the first 4 bits of the 10bit voltage into data[0]'s last four bits
-    data[0] = data[0] | ((voltage >> 6) & 0b00001111);
-
-    // put the last 6 bits of the 10 bit voltage into data[1]'s first 6 bits
-    data[1] = (voltage << 2) & 0b11111111;
-
-    cs_select(DAC_PIN_CS);
-    spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
-    cs_deselect(DAC_PIN_CS);
 }
 
 void spi_ram_init(){
