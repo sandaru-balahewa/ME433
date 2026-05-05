@@ -31,46 +31,40 @@ int main()
     gpio_set_dir(DAC_PIN_CS, GPIO_OUT);
     gpio_put(DAC_PIN_CS, 1);
 
-    // Sine wave at 2 Hz and triangle wave at 1 Hz
+    // Sine wave at 2 Hz
     int sine_freq = 2;
-    int tri_freq = 1;
 
-    //Update at least 50x faster than the frequency of the waves
+    // Create an array to store the single cycle sine wave as values required by the DAC
+    uint16_t sine_wave_arr[1000];
 
     float t = 0;
-    float dt = 0.001; // we're updating at 1000Hz
+    float dt = 0.0005;
+    for (int i=0; i<1000; i++){
+        uint16_t sine_voltage_dac = (sin(2*M_PI*sine_freq*t) + 1) / 2 * 1023;
+
+        uint8_t data[2];
+        data[0] = 0b01110000;
+    
+        // putting the channel bit in
+        data[0] = data[0] | ((0 & 0b1) << 7);
+
+        // put the first 4 bits of the 10bit voltage into data[0]'s last four bits
+        data[0] = data[0] | ((sine_voltage_dac >> 6) & 0b00001111);
+
+        // put the last 6 bits of the 10 bit voltage into data[1]'s first 6 bits
+        data[1] = (sine_voltage_dac << 2) & 0b11111111;
+
+        sine_wave_arr[i] = (data[0] << 8) | data[1];
+        t += dt;
+    }
+    
     float sine_voltage;
-    float tri_voltage = 0;
-
-    // Calculate the step for the triangle wave
-    float tri_step = 3.3 / (((1.0 / tri_freq) / 2) / dt);
-
-    // flag for going up and down in the triangle wave
-    bool tri_going_up = true;
 
     while (true) {
-        // Calculate the sine wave voltage
-        sine_voltage = (sin(2*M_PI*sine_freq*t) + 1) / 2 * 3.3;
-
-        // Calculate the triangle wave voltage
-        if (tri_going_up){
-            tri_voltage += tri_step;
-            if (tri_voltage >= 3.3){
-                tri_voltage = 3.3;
-                tri_going_up = false;
-            }
-        }
-        else{
-            tri_voltage -= tri_step;
-            if (tri_voltage <= 0){
-                tri_voltage = 0;
-                tri_going_up = true;
-            }
-        }
+        
 
         // call writeDAC
         writeDAC(0, sine_voltage);
-        writeDAC(1, tri_voltage);
         t += dt;
         sleep_ms(1);
     }
@@ -96,6 +90,17 @@ void writeDAC(int channel, float v){
     cs_select(DAC_PIN_CS);
     spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
     cs_deselect(DAC_PIN_CS);
+}
+
+void spi_ram_init(){
+    uint8_t init_data[2];
+
+    init_data[0] = 0b00000001; //Write Status register instruction
+    init_data[1] = 0b01000000; // Sequential operation
+
+    cs_select(RAM_PIN_CS);
+    spi_write_blocking(SPI_PORT, init_data, 2);
+    cs_deselect(RAM_PIN_CS);
 }
 
 static inline void cs_select(uint cs_pin) {
