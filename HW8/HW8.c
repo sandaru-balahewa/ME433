@@ -44,14 +44,14 @@ int main()
 
     spi_ram_init();
 
-    // Sine wave at 2 Hz
-    int sine_freq = 2;
+    // Sine wave at 1 Hz
+    int sine_freq = 1;
 
     // Create an array to store the single cycle sine wave as values required by the DAC
     uint16_t sine_wave_arr[1000];
 
     float t = 0;
-    float dt = 0.0005;
+    float dt = 0.001;
     for (int i=0; i<1000; i++){
         uint16_t sine_voltage_dac = (sin(2*M_PI*sine_freq*t) + 1) / 2 * 1023;
 
@@ -79,15 +79,20 @@ int main()
 
         spi_ram_write(i * 2, data, 2); // in each loop write the low and high bytes of the DAC data
     }
-    
-    float sine_voltage;
 
+    uint16_t ram_address = 0;
+    uint8_t dac_data[2];
     while (true) {
-        
+        spi_ram_read(ram_address, dac_data, 2);
 
-        // call writeDAC
-        writeDAC(0, sine_voltage);
-        t += dt;
+        cs_select(DAC_PIN_CS);
+        spi_write_blocking(SPI_PORT, dac_data, 2);
+        cs_deselect(DAC_PIN_CS);
+
+        ram_address += 2;
+        if (ram_address >=2000){
+            ram_address = 0;
+        }
         sleep_ms(1);
     }
 }
