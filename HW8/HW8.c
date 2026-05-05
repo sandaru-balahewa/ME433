@@ -15,6 +15,7 @@
 static inline void cs_deselect(uint cs_pin);
 static inline void cs_select(uint cs_pin);
 void writeDAC(int channel, float v);
+void spi_ram_init();
 
 int main()
 {
@@ -100,6 +101,19 @@ void spi_ram_init(){
 
     cs_select(RAM_PIN_CS);
     spi_write_blocking(SPI_PORT, init_data, 2);
+    cs_deselect(RAM_PIN_CS);
+}
+
+void spi_ram_write(uint16_t address, uint8_t *data, int len){
+    uint8_t command[3];
+
+    command[0] = 0b00000010;
+    command[1] = (address >> 8) & 0xFF; // high byte of the address
+    command[2] = address & 0xFF;
+
+    cs_select(RAM_PIN_CS);
+    spi_write_blocking(SPI_PORT, command, 3);
+    spi_write_blocking(SPI_PORT, data, len);
     cs_deselect(RAM_PIN_CS);
 }
 
