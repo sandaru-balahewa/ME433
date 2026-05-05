@@ -7,7 +7,8 @@
 // We are going to use SPI 0, and allocate it to the following GPIO pins
 #define SPI_PORT spi0
 #define PIN_SDI 16
-#define PIN_CS   17
+#define DAC_PIN_CS 17
+#define RAM_PIN_CS 20
 #define PIN_SCK  18
 #define PIN_SDO 19
 
@@ -19,16 +20,16 @@ int main()
 {
     stdio_init_all();
 
-    // SPI initialization
+    // SPI initialization for DAC
     spi_init(SPI_PORT, 20000*1000); // the baud, or bits per second
     gpio_set_function(PIN_SDI, GPIO_FUNC_SPI);
-    gpio_set_function(PIN_CS,   GPIO_FUNC_SIO);
+    gpio_set_function(DAC_PIN_CS,   GPIO_FUNC_SIO);
     gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
     gpio_set_function(PIN_SDO, GPIO_FUNC_SPI);
     
     // Chip select is active-low, so we'll initialise it to a driven-high state
-    gpio_set_dir(PIN_CS, GPIO_OUT);
-    gpio_put(PIN_CS, 1);
+    gpio_set_dir(DAC_PIN_CS, GPIO_OUT);
+    gpio_put(DAC_PIN_CS, 1);
 
     // Sine wave at 2 Hz and triangle wave at 1 Hz
     int sine_freq = 2;
@@ -92,9 +93,9 @@ void writeDAC(int channel, float v){
     // put the last 6 bits of the 10 bit voltage into data[1]'s first 6 bits
     data[1] = (voltage << 2) & 0b11111111;
 
-    cs_select(PIN_CS);
+    cs_select(DAC_PIN_CS);
     spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
-    cs_deselect(PIN_CS);
+    cs_deselect(DAC_PIN_CS);
 }
 
 static inline void cs_select(uint cs_pin) {
