@@ -107,13 +107,26 @@ void spi_ram_init(){
 void spi_ram_write(uint16_t address, uint8_t *data, int len){
     uint8_t command[3];
 
-    command[0] = 0b00000010;
+    command[0] = 0b00000010; // write instruction
     command[1] = (address >> 8) & 0xFF; // high byte of the address
     command[2] = address & 0xFF;
 
     cs_select(RAM_PIN_CS);
     spi_write_blocking(SPI_PORT, command, 3);
     spi_write_blocking(SPI_PORT, data, len);
+    cs_deselect(RAM_PIN_CS);
+}
+
+void spi_ram_read(uint16_t address, uint8_t *data, int len){
+    uint8_t command[3];
+
+    command[0] = 0b00000011; // read instruction
+    command[1] = (address >> 8) & 0xFF; // high byte of the address
+    command[2] = address & 0xFF;
+
+    cs_select(RAM_PIN_CS);
+    spi_write_blocking(SPI_PORT, command, 3);
+    spi_read_blocking(SPI_PORT, 0x00, data, len);
     cs_deselect(RAM_PIN_CS);
 }
 
