@@ -1,25 +1,19 @@
 import csv
 
-# Lists to store time and signal data for the 4 files
-sigA_t = []
-sigA_data = []
+# List to store the paths of 4 files
+file_list = ["sigA.csv", "sigB.csv", "sigC.csv", "sigD.csv"]
 
-sigB_t = []
-sigB_data = []
+t = []
+sig_data = []
 
-sigB_t = []
-sigB_data = []
-
-sigB_t = []
-sigB_data = []
 
 with open('sigA.csv') as f:
     # open the csv file
     reader = csv.reader(f)
     for row in reader:
         # read the rows 1 one by one
-        sigA_t.append(float(row[0])) # leftmost column
-        sigA_data.append(float(row[1])) # second column
+        sig_t.append(float(row[0])) # leftmost column
+        sig_data.append(float(row[1])) # second column
 
 sample_rate = (len(t) - 1) / t[-1]
 print(sample_rate)
