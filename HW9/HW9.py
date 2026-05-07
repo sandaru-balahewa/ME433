@@ -6,17 +6,17 @@ file_list = ["sigA.csv", "sigB.csv", "sigC.csv", "sigD.csv"]
 t = []
 sig_data = []
 
+for file in file_list:
+    with open(file) as f:
+        # open the csv file
+        reader = csv.reader(f)
+        for row in reader:
+            # read the rows 1 one by one
+            t.append(float(row[0])) # leftmost column
+            sig_data.append(float(row[1])) # second column
 
-with open('sigA.csv') as f:
-    # open the csv file
-    reader = csv.reader(f)
-    for row in reader:
-        # read the rows 1 one by one
-        sig_t.append(float(row[0])) # leftmost column
-        sig_data.append(float(row[1])) # second column
-
-sample_rate = (len(t) - 1) / t[-1]
-print(sample_rate)
+    sample_rate = (len(t) - 1) / t[-1]
+    print(sample_rate)
 
 
 # FFT
