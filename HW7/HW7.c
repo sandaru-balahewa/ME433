@@ -68,8 +68,8 @@ int main()
         }
 
         // call writeDAC
-        writeDAC(0, sine_voltage);
-        writeDAC(1, tri_voltage);
+        writeDAC(0, sine_voltage); // channel A
+        writeDAC(1, tri_voltage); // channel B
         t += dt;
         sleep_ms(1);
     }
