@@ -11,6 +11,8 @@ for file in file_list:
     t = []
     sig_data = []
 
+    file_name = file.replace(".csv", "")
+
     with open(file) as f:
         # open the csv file
         reader = csv.reader(f)
@@ -45,6 +47,7 @@ for file in file_list:
 
     # Plotting
     fig, (ax1, ax2) = plt.subplots(2, 1)
+    fig.suptitle(f"Raw Signal FFT")
     ax1.plot(t,y,'b')
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Amplitude')
@@ -54,23 +57,6 @@ for file in file_list:
     ax2.set_ylabel('|Y(freq)|')
     ax2.set_title(f"{file} Frequency Domain Signal Using FFT")
     plt.tight_layout()
-    plt.show()
-
-
-# for i in range(len(t)):
-#     # print the data to verify it was read
-#     print(str(t[i]) + ", " + str(data1[i]))
-
-# import matplotlib.pyplot as plt # for plotting
-# import numpy as np # for sine function
-
-# dt = 1.0/100.0 # 100Hz
-# t = np.arange(0.0, 5.0, dt) # for 5s
-
-# s = 2.0 * np.sin(2 * np.pi * 2.3 * t) + 2.5 # 2.3Hz
-
-# plt.plot(t,s,'b-*')
-# plt.xlabel('Time [s]')
-# plt.ylabel('Signal')
-# plt.title('Signal vs Time')
-# plt.show()
+    output_name = f"{file_name}_Raw_FFT.png"
+    plt.savefig(output_name, dpi=300)
+    plt.close()
