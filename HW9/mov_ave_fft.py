@@ -9,6 +9,8 @@ file_list = ["sigA.csv", "sigB.csv", "sigC.csv", "sigD.csv"]
 
 for file in file_list:
 
+    file_name = file.replace(".csv", "")
+
     # Lists to store time and signal data
     t = []
     sig_data = []
@@ -57,16 +59,18 @@ for file in file_list:
     ax1.plot(t[X-1:], mov_ave_data, 'r', label="Filtered")
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Amplitude')
-    ax1.set_title(f"{file} Time Series Signal Comparison for a Moving Average Filter with X = {X}")
+    ax1.set_title(f"{file_name} Time Series Signal Comparison for a Moving Average Filter with X = {X}")
     ax1.legend()
     ax1.grid(True)
 
     ax2.loglog(frq,abs(Y_original),'k', label="Unfiltered")
     ax2.loglog(frq_mov, abs(Y_mov), 'r', label="Filtered")
-    ax2.set_title(f"{file} FFT Comparison for a Moving Average Filter with X = {X}")
+    ax2.set_title(f"{file_name} FFT Comparison for a Moving Average Filter with X = {X}")
     ax2.legend()
     ax2.set_xlabel('Freq (Hz)')
     ax2.set_ylabel('|Y(freq)|')
     ax2.grid(True)
     plt.tight_layout()
-    plt.show()
+    output_name = f"Figures/{file_name}_MAF_X_{X}.png"
+    plt.savefig(output_name, dpi=300)
+    plt.close()
