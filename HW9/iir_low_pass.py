@@ -58,7 +58,7 @@ for file in file_list:
     Y_fil = Y_fil[range(int(n_fil/2))]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,8))
-    fig.suptitle(f"{file} IIR Filter with A = {A}, B = {B}")
+    fig.suptitle(f"{file_name} IIR Filter with A = {A}, B = {B}")
     ax1.plot(t,sig_data,'k', label="Unfiltered")
     ax1.plot(t, iir_data, 'r', label="Filtered")
     ax1.set_xlabel('Time')
@@ -74,8 +74,7 @@ for file in file_list:
     ax2.set_xlabel('Freq (Hz)')
     ax2.set_ylabel('|Y(freq)|')
     ax2.grid(True)
-
+    plt.tight_layout()
     output_name = f"Figures/{file_name}_IIR.png"
     plt.savefig(output_name, dpi=300)
-    plt.tight_layout()
     plt.close()
