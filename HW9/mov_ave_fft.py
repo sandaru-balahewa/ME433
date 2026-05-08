@@ -55,17 +55,18 @@ for file in file_list:
     Y_mov = Y_mov[range(int(n_mov/2))]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,8))
+    fig.suptitle(f"{file_name} Moving Average Filter with X = {X}")
     ax1.plot(t,sig_data,'k', label="Unfiltered")
     ax1.plot(t[X-1:], mov_ave_data, 'r', label="Filtered")
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Amplitude')
-    ax1.set_title(f"{file_name} Time Series Signal Comparison for a Moving Average Filter with X = {X}")
+    ax1.set_title("Time Series Signal Comparison")
     ax1.legend()
     ax1.grid(True)
 
     ax2.loglog(frq,abs(Y_original),'k', label="Unfiltered")
     ax2.loglog(frq_mov, abs(Y_mov), 'r', label="Filtered")
-    ax2.set_title(f"{file_name} FFT Comparison for a Moving Average Filter with X = {X}")
+    ax2.set_title("FFT Comparison")
     ax2.legend()
     ax2.set_xlabel('Freq (Hz)')
     ax2.set_ylabel('|Y(freq)|')
