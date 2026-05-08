@@ -7,7 +7,6 @@ B = 0.05
 
 # List to store the paths of 4 files
 file_list = ["sigA.csv", "sigB.csv", "sigC.csv", "sigD.csv"]
-# file_list = ["sigA.csv", "sigB.csv", "sigC.csv"]
 weights_file_list = ["sigA_fir_weights.txt", "sigB_fir_weights.txt", "sigC_fir_weights.txt", "sigD_fir_weights.txt"]
 
 cut_off_freq = [100, 33, 25, 20]
@@ -69,7 +68,7 @@ for index, file in enumerate(file_list):
     Y_fir = Y_fir[range(int(n_fir/2))]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,8))
-    fig.suptitle(f"{file_name} FIR Filter Comparison - Cutoff Frequency = {cut_off_freq[index]}, Bandwidth = {bandwidths[index]} Weights = {X_list[index]}")
+    fig.suptitle(f"{file_name} FIR Filter Comparison - Cutoff Frequency = {cut_off_freq[index]} Hz, Transition Bandwidth = {bandwidths[index]} Hz Weights = {X_list[index]}")
     ax1.plot(t,sig_data,'k', label="Unfiltered")
     ax1.plot(t[X-1:], fir_data, 'r', label="Filtered")
     ax1.set_xlabel('Time')
@@ -86,4 +85,6 @@ for index, file in enumerate(file_list):
     ax2.set_ylabel('|Y(freq)|')
     ax2.grid(True)
     plt.tight_layout()
-    plt.show()
+    output_name = f"Figures/{file_name}_FIR.png"
+    plt.savefig(output_name, dpi=300)
+    plt.close()
