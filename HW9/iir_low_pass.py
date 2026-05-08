@@ -2,8 +2,8 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
-A = 0.9
-B = 0.1
+A = 0.95
+B = 0.05
 
 # List to store the paths of 4 files
 file_list = ["sigA.csv", "sigB.csv", "sigC.csv", "sigD.csv"]
@@ -33,6 +33,7 @@ for file in file_list:
 
     # Calculate sample rate
     sample_rate = (len(t) - 1) / (t[-1] - t[0])
+    print(f"Sample Rate: {sample_rate}")
 
     Fs = sample_rate # sample rate
     y = sig_data # the data to make the fft from
