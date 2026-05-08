@@ -15,6 +15,8 @@ for file in file_list:
     sig_data = []
     iir_data = []
 
+    file_name = file.replace(".csv", "")
+
     with open(file) as f:
         # open the csv file
         reader = csv.reader(f)
@@ -56,20 +58,24 @@ for file in file_list:
     Y_fil = Y_fil[range(int(n_fil/2))]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,8))
+    fig.suptitle(f"{file} IIR Filter with A = {A}, B = {B}")
     ax1.plot(t,sig_data,'k', label="Unfiltered")
     ax1.plot(t, iir_data, 'r', label="Filtered")
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Amplitude')
-    ax1.set_title(f"{file} Time Series Signal Comparison for a IIR Filter with A = {A}, B = {B}")
+    ax1.set_title("Time Series Signal Comparison")
     ax1.legend()
     ax1.grid(True)
 
     ax2.loglog(frq,abs(Y_original),'k', label="Unfiltered")
     ax2.loglog(frq_fil, abs(Y_fil), 'r', label="Filtered")
-    ax2.set_title(f"{file} FFT Comparison for a IIR Filter with A = {A}, B = {B}")
+    ax2.set_title("FFT Comparison")
     ax2.legend()
     ax2.set_xlabel('Freq (Hz)')
     ax2.set_ylabel('|Y(freq)|')
     ax2.grid(True)
+
+    output_name = f"Figures/{file_name}_IIR.png"
+    plt.savefig(output_name, dpi=300)
     plt.tight_layout()
-    plt.show()
+    plt.close()
