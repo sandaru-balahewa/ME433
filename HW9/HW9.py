@@ -19,9 +19,9 @@ for file in file_list:
             t.append(float(row[0])) # leftmost column
             sig_data.append(float(row[1])) # second column
 
-    # # convert to numpy arrays
-    # t = np.array(t)
-    # sig_data = np.array(sig_data)
+    # convert to numpy arrays
+    t = np.array(t)
+    sig_data = np.array(sig_data)
 
     # Calculate sample rate
     sample_rate = (len(t) - 1) / (t[-1] - t[0])
@@ -42,13 +42,17 @@ for file in file_list:
     Y = np.fft.fft(y)/n # fft computing and normalization
     Y = Y[range(int(n/2))]
 
+
+    # Plotting
     fig, (ax1, ax2) = plt.subplots(2, 1)
     ax1.plot(t,y,'b')
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Amplitude')
+    ax1.set_title(f"{file} Time Series Plot")
     ax2.loglog(frq,abs(Y),'b') # plotting the fft
     ax2.set_xlabel('Freq (Hz)')
     ax2.set_ylabel('|Y(freq)|')
+    ax2.set_title(f"{file} Frequency Domain Signal Using FFT")
     plt.tight_layout()
     plt.show()
 
