@@ -7,12 +7,12 @@ B = 0.05
 
 # List to store the paths of 4 files
 # file_list = ["sigA.csv", "sigB.csv", "sigC.csv", "sigD.csv"]
-file_list = ["sigA.csv"]
-weights_file_list = ["sigA_fir_weights.txt"]
+file_list = ["sigA.csv", "sigB.csv", "sigC.csv"]
+weights_file_list = ["sigA_fir_weights.txt", "sigB_fir_weights.txt", "sigC_fir_weights.txt"]
 
-cut_off_freq = [100]
-bandwidths = [100]
-X_list = [231]
+cut_off_freq = [100, 33, 500]
+bandwidths = [100, 66, 50]
+X_list = [231, 231, 231]
 
 for index, file in enumerate(file_list):
 
