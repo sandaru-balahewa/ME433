@@ -57,6 +57,6 @@ for file in file_list:
     ax2.set_ylabel('|Y(freq)|')
     ax2.set_title(f"{file} Frequency Domain Signal Using FFT")
     plt.tight_layout()
-    output_name = f"{file_name}_Raw_FFT.png"
+    output_name = f"Figures/{file_name}_Raw_FFT.png"
     plt.savefig(output_name, dpi=300)
     plt.close()
