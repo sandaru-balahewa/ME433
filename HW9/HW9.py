@@ -46,7 +46,7 @@ for file in file_list:
 
 
     # Plotting
-    fig, (ax1, ax2) = plt.subplots(2, 1)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,8))
     fig.suptitle(f"Raw Signal FFT")
     ax1.plot(t,y,'b')
     ax1.set_xlabel('Time')
