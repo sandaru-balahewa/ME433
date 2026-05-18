@@ -14,6 +14,7 @@ HEIGHT = 600
 # =========================
 game_over = False
 score = 0
+game_over_sound_played = False
 
 # =========================
 # PLAYER SHIP
@@ -249,8 +250,17 @@ def update():
     global enemy_timer
     global game_over
     global score
+    global game_over_sound_played
 
     if game_over:
+
+        if not game_over_sound_played:
+
+            # PLAY GAME OVER SOUND
+            sounds.gameover.play()
+
+            game_over_sound_played = True
+
         return
 
     # -------------------------
@@ -359,6 +369,9 @@ def on_key_down(key):
 
     if key == keys.SPACE and not game_over:
 
+        # PLAY SHOOT SOUND
+        sounds.shoot.play()
+
         bullets.append({
             "x": player_x - 2,
             "y": player_y - 30
@@ -383,6 +396,7 @@ def restart_game():
     global score
     global enemy_timer
     global player_x
+    global game_over_sound_played
 
     game_over = False
     score = 0
@@ -393,6 +407,8 @@ def restart_game():
     enemy_timer = 0
 
     player_x = WIDTH // 2
+
+    game_over_sound_played = False
 
 
 # =========================
