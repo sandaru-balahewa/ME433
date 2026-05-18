@@ -1,5 +1,7 @@
 import random
+import math
 import pgzrun
+import pygame
 
 # =========================
 # SCREEN SETTINGS
@@ -14,9 +16,10 @@ game_over = False
 score = 0
 
 # =========================
-# PLAYER
+# PLAYER SHIP
 # =========================
-player = Rect((370, 540), (60, 40))
+player_x = WIDTH // 2
+player_y = HEIGHT - 70
 player_speed = 6
 
 # =========================
@@ -28,9 +31,123 @@ enemies = []
 enemy_timer = 0
 
 # =========================
+# STAR BACKGROUND
+# =========================
+stars = []
+
+for i in range(100):
+
+    stars.append([
+        random.randint(0, WIDTH),
+        random.randint(0, HEIGHT),
+        random.randint(1, 3)
+    ])
+
+# =========================
 # RESTART BUTTON
 # =========================
 restart_button = Rect((300, 350), (200, 60))
+
+
+# =========================
+# DRAW PLAYER SHIP
+# =========================
+def draw_ship(x, y):
+
+    # Main body
+    pygame.draw.polygon(
+        screen.surface,
+        (0, 220, 255),
+        [
+            (x, y - 30),
+            (x - 25, y + 20),
+            (x + 25, y + 20)
+        ]
+    )
+
+    # Cockpit
+    screen.draw.filled_circle(
+        (x, y - 5),
+        8,
+        (255, 255, 255)
+    )
+
+    # Left wing
+    pygame.draw.polygon(
+        screen.surface,
+        (0, 150, 255),
+        [
+            (x - 25, y + 15),
+            (x - 40, y + 30),
+            (x - 15, y + 20)
+        ]
+    )
+
+    # Right wing
+    pygame.draw.polygon(
+        screen.surface,
+        (0, 150, 255),
+        [
+            (x + 25, y + 15),
+            (x + 40, y + 30),
+            (x + 15, y + 20)
+        ]
+    )
+
+    # Engine flame
+    flame_size = random.randint(8, 15)
+
+    pygame.draw.polygon(
+        screen.surface,
+        (255, 140, 0),
+        [
+            (x - 10, y + 20),
+            (x, y + 20 + flame_size),
+            (x + 10, y + 20)
+        ]
+    )
+
+
+# =========================
+# DRAW ASTEROID
+# =========================
+def draw_asteroid(enemy):
+
+    x = enemy["x"]
+    y = enemy["y"]
+    size = enemy["size"]
+
+    points = []
+
+    for i in range(8):
+
+        angle = (math.pi * 2 / 8) * i
+
+        radius = size + random.randint(-5, 5)
+
+        px = x + math.cos(angle) * radius
+        py = y + math.sin(angle) * radius
+
+        points.append((px, py))
+
+    pygame.draw.polygon(
+        screen.surface,
+        (120, 120, 120),
+        points
+    )
+
+    # Craters
+    screen.draw.filled_circle(
+        (x - 5, y - 3),
+        3,
+        (90, 90, 90)
+    )
+
+    screen.draw.filled_circle(
+        (x + 7, y + 5),
+        2,
+        (90, 90, 90)
+    )
 
 
 # =========================
@@ -39,7 +156,18 @@ restart_button = Rect((300, 350), (200, 60))
 def draw():
 
     screen.clear()
-    screen.fill((0, 0, 20))
+    screen.fill((5, 5, 20))
+
+    # -------------------------
+    # DRAW STARS
+    # -------------------------
+    for star in stars:
+
+        screen.draw.filled_circle(
+            (star[0], star[1]),
+            star[2],
+            "white"
+        )
 
     # -------------------------
     # GAME OVER SCREEN
@@ -61,7 +189,10 @@ def draw():
         )
 
         # Restart button
-        screen.draw.filled_rect(restart_button, "green")
+        screen.draw.filled_rect(
+            restart_button,
+            (0, 200, 100)
+        )
 
         screen.draw.text(
             "RESTART",
@@ -75,26 +206,35 @@ def draw():
     # -------------------------
     # DRAW PLAYER
     # -------------------------
-    screen.draw.filled_rect(player, "cyan")
+    draw_ship(player_x, player_y)
 
     # -------------------------
     # DRAW BULLETS
     # -------------------------
     for bullet in bullets:
-        screen.draw.filled_rect(bullet, "yellow")
+
+        bullet_rect = Rect(
+            (bullet["x"], bullet["y"]),
+            (4, 15)
+        )
+
+        screen.draw.filled_rect(
+            bullet_rect,
+            "yellow"
+        )
 
     # -------------------------
     # DRAW ENEMIES
     # -------------------------
     for enemy in enemies:
-        screen.draw.filled_rect(enemy, "red")
+        draw_asteroid(enemy)
 
     # -------------------------
     # DRAW SCORE
     # -------------------------
     screen.draw.text(
         f"Score: {score}",
-        (10, 10),
+        (15, 15),
         fontsize=35,
         color="white"
     )
@@ -105,6 +245,7 @@ def draw():
 # =========================
 def update():
 
+    global player_x
     global enemy_timer
     global game_over
     global score
@@ -113,30 +254,41 @@ def update():
         return
 
     # -------------------------
+    # MOVE STARS
+    # -------------------------
+    for star in stars:
+
+        star[1] += star[2]
+
+        if star[1] > HEIGHT:
+
+            star[0] = random.randint(0, WIDTH)
+            star[1] = 0
+
+    # -------------------------
     # PLAYER MOVEMENT
     # -------------------------
     if keyboard.left:
-        player.x -= player_speed
+        player_x -= player_speed
 
     if keyboard.right:
-        player.x += player_speed
+        player_x += player_speed
 
     # Keep player on screen
-    if player.left < 0:
-        player.left = 0
+    if player_x < 40:
+        player_x = 40
 
-    if player.right > WIDTH:
-        player.right = WIDTH
+    if player_x > WIDTH - 40:
+        player_x = WIDTH - 40
 
     # -------------------------
     # MOVE BULLETS
     # -------------------------
     for bullet in bullets[:]:
 
-        bullet.y -= 8
+        bullet["y"] -= 10
 
-        # Remove bullets off screen
-        if bullet.bottom < 0:
+        if bullet["y"] < 0:
             bullets.remove(bullet)
 
     # -------------------------
@@ -148,35 +300,46 @@ def update():
 
         enemy_timer = 0
 
-        enemy_x = random.randint(0, WIDTH - 40)
-
-        enemy = Rect((enemy_x, 0), (40, 40))
-
-        enemies.append(enemy)
+        enemies.append({
+            "x": random.randint(50, WIDTH - 50),
+            "y": -40,
+            "size": random.randint(20, 35),
+            "speed": random.randint(2, 5)
+        })
 
     # -------------------------
     # MOVE ENEMIES
     # -------------------------
     for enemy in enemies[:]:
 
-        enemy.y += random.randint(2, 5)
+        enemy["y"] += enemy["speed"]
 
-        # Enemy hits player
-        if enemy.colliderect(player):
+        # Collision with player
+        distance = math.sqrt(
+            (enemy["x"] - player_x) ** 2 +
+            (enemy["y"] - player_y) ** 2
+        )
+
+        if distance < enemy["size"] + 20:
             game_over = True
 
-        # Remove enemies off screen
-        if enemy.top > HEIGHT:
+        # Remove off screen
+        if enemy["y"] > HEIGHT + 50:
             enemies.remove(enemy)
 
     # -------------------------
-    # BULLET-ENEMY COLLISIONS
+    # BULLET COLLISIONS
     # -------------------------
     for bullet in bullets[:]:
 
         for enemy in enemies[:]:
 
-            if bullet.colliderect(enemy):
+            distance = math.sqrt(
+                (enemy["x"] - bullet["x"]) ** 2 +
+                (enemy["y"] - bullet["y"]) ** 2
+            )
+
+            if distance < enemy["size"]:
 
                 if bullet in bullets:
                     bullets.remove(bullet)
@@ -196,12 +359,10 @@ def on_key_down(key):
 
     if key == keys.SPACE and not game_over:
 
-        bullet = Rect(
-            (player.centerx - 3, player.top - 10),
-            (6, 15)
-        )
-
-        bullets.append(bullet)
+        bullets.append({
+            "x": player_x - 2,
+            "y": player_y - 30
+        })
 
 
 # =========================
@@ -214,27 +375,24 @@ def on_mouse_down(pos):
 
 
 # =========================
-# RESTART FUNCTION
+# RESTART GAME
 # =========================
 def restart_game():
 
     global game_over
     global score
-    global enemies
-    global bullets
     global enemy_timer
+    global player_x
 
     game_over = False
     score = 0
 
-    enemies.clear()
     bullets.clear()
+    enemies.clear()
 
     enemy_timer = 0
 
-    # Reset player position
-    player.x = 370
-    player.y = 540
+    player_x = WIDTH // 2
 
 
 # =========================
