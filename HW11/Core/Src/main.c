@@ -72,6 +72,14 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
+	// UART Receive buffer and index
+	char uart_buffer[1000];
+	int uart_index = 0;
+
+	// Receive from computer USB
+	char usb_buffer[1000];
+	int usb_index = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -143,6 +151,77 @@ int main(void)
 
       /* ..... Perform your action ..... */
     }
+
+    // Receive from Pico (UART)
+    char rx_char;
+
+    if (HAL_UART_Receive(&huart1, (uint8_t*) &rx_char, 1, 1) == HAL_OK){
+    	if (rx_char == '\n'){
+    		// got the message
+    		// Add a null terminator to make a valid C string
+    		uart_buffer[uart_index] = '\0';
+
+    		// print to STM32 virtual COM port
+    		printf("Received: %s\n", uart_buffer);
+
+    		// Echo message back to pico
+//    		HAL_UART_Transmit(&huart1, (uint8_t*) uart_buffer, strlen(uart_buffer), 10);
+
+    		// Send newline
+//    		char newline[] = "\n";
+
+//    		HAL_UART_Transmit(&huart1, (uint8_t*) newline, 1, 1);
+
+    		// reset buffer index
+    		uart_index = 0;
+
+    	}
+    	else{
+    		// store char in buffer
+    		uart_buffer[uart_index] = rx_char;
+
+    		// increment index
+    		uart_index++;
+
+    		// prevent buffer overflow
+    		if (uart_index == 1000){
+    			uart_index = 0;
+    		}
+    	}
+    }
+
+
+	// Receive from USB
+	char usb_rx_char;
+	if (HAL_UART_Receive(&hcom_uart[COM1], (uint8_t*) &usb_rx_char, 1, 1) == HAL_OK){
+		// End of line?
+		if (usb_rx_char == '\n'){
+			usb_buffer[usb_index] = '\0';
+
+			// Send to Pico over UART
+			HAL_UART_Transmit(&huart1, (uint8_t*) usb_buffer, strlen(usb_buffer), 10);
+
+			// Send newline
+			char newline[] = "\n";
+
+			HAL_UART_Transmit(&huart1, (uint8_t*) newline, 1, 1);
+
+			usb_index = 0;
+
+		}
+		else{
+			usb_buffer[usb_index] = usb_rx_char;
+
+			// increment index
+			usb_index++;
+
+			// prevent overflow
+			if (usb_index == 1000){
+				usb_index = 0;
+			}
+		}
+	}
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
