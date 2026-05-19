@@ -30,6 +30,6 @@ int main()
         // Send data to serial monitor
         printf("(%d,%d)\n", pot, pb_state);
 
-        sleep_ms(1000/60); // send the numbers at 60Hz to the game
+        sleep_ms(1000/30); // send the numbers at 60Hz to the game
     }
 }
