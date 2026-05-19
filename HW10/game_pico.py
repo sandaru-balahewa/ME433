@@ -2,6 +2,15 @@ import random
 import math
 import pgzrun
 import pygame
+import serial
+
+
+ser = serial.Serial('COM4')
+print('Opening port: ' + str(ser.name))
+
+# Clear startup junk
+ser.reset_input_buffer()
+
 
 # =========================
 # SCREEN SETTINGS
@@ -22,6 +31,14 @@ game_over_sound_played = False
 player_x = WIDTH // 2
 player_y = HEIGHT - 70
 player_speed = 6
+
+# =========================
+# PICO INPUT VALUES
+# =========================
+pot_value = 0
+button_value = 1
+
+previous_button = 1
 
 # =========================
 # BULLETS & ENEMIES
@@ -159,6 +176,9 @@ def draw():
     screen.clear()
     screen.fill((5, 5, 20))
 
+    # Draw the input from the pico
+    screen.draw.text('POT: ' + str(pot_value)+ '\n' + 'PB: ' + str(button_value),(WIDTH - 100, 5))
+
     # -------------------------
     # DRAW STARS
     # -------------------------
@@ -251,6 +271,20 @@ def update():
     global game_over
     global score
     global game_over_sound_played
+    global pot_value
+    global button_value
+    global previous_button
+
+    # =========================
+    # READ SERIAL DATA
+    # =========================
+
+    n_bytes = ser.readline() # read all the letters available
+    s = str(n_bytes) # turn them into a str
+    result1 = s[s.find('(')+1:s.find(',')] # find everything beween ( and ,
+    result2 = s[s.find(',')+1:s.find(')')] # find everything between , and )
+    pot_value = int(result1) # convert str to int
+    button_value = int(result2)
 
     if game_over:
 
@@ -275,8 +309,33 @@ def update():
             star[0] = random.randint(0, WIDTH)
             star[1] = 0
 
+    # =========================
+    # POT CONTROLS SHIP
+    # =========================
+
+    # ADC range is 0 to 4095
+    # Map to screen width
+
+    player_x = int(20 + (pot_value / 4095) * (WIDTH - 40))
+
+    # =========================
+    # BUTTON CONTROLS SHOOTING
+    # =========================
+
+    # Detect button press edge
+    if previous_button == 1 and button_value == 0:
+
+        sounds.shoot.play()
+
+        bullets.append({
+            "x": player_x - 2,
+            "y": player_y - 30
+        })
+
+    previous_button = button_value
+
     # -------------------------
-    # PLAYER MOVEMENT
+    # PLAYER MOVEMENT Keyboard
     # -------------------------
     if keyboard.left:
         player_x -= player_speed
