@@ -180,10 +180,6 @@ int main(void) {
 //				Testing
 //				printf("%s\n", usb_buffer);
 
-////			   // Echo back to computer directly (no printf)
-//				HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*)usb_buffer, usb_index, 100);
-//				HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*)"\n", 1, 10);
-
 				usb_index = 0;
 			}
 
