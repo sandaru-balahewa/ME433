@@ -60,7 +60,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern UART_HandleTypeDef hcom_uart[COM1];
 /* USER CODE END 0 */
 
 /**
@@ -139,88 +139,172 @@ int main(void)
   while (1)
   {
 
-    /* -- Sample board code for User push-button in interrupt mode ---- */
-    if (BspButtonState == BUTTON_PRESSED)
-    {
-      /* Update button state */
-      BspButtonState = BUTTON_RELEASED;
-      /* -- Sample board code to toggle leds ---- */
-      BSP_LED_Toggle(LED_GREEN);
-      BSP_LED_Toggle(LED_BLUE);
-      printf("Hello\n");
+//    // Receive from Pico (UART)
+//	printf("Hello, loop is running\n");
 
-      /* ..... Perform your action ..... */
-    }
+//	  char c = getchar();
+//	  HAL_Delay(10);
+//
+//	  printf("Got: %c\r\n", c);
+//	  HAL_Delay(100);
 
-    // Receive from Pico (UART)
-    char rx_char;
+	  //My code
 
-    if (HAL_UART_Receive(&huart1, (uint8_t*) &rx_char, 1, 1) == HAL_OK){
-    	if (rx_char == '\n'){
-    		// got the message
-    		// Add a null terminator to make a valid C string
-    		uart_buffer[uart_index] = '\0';
+//	  //	 Receive from USB
+//	char usb_rx_char;
+//	if (HAL_UART_Receive(&hcom_uart[COM1], (uint8_t*) &usb_rx_char, 1, 100) == HAL_OK){
+//		// End of line?
+//		if (usb_rx_char == '\n'){
+//			usb_buffer[usb_index] = '\0';
+//
+//			// Send to Pico over UART
+//			HAL_UART_Transmit(&huart1, (uint8_t*) usb_buffer, strlen(usb_buffer), 10);
+//
+//			// Send newline
+//			char newline[] = "\n";
+//
+//			HAL_UART_Transmit(&huart1, (uint8_t*) newline, 1, 1);
+//
+//			//Testing
+//			printf("%s\n", usb_buffer);
+//
+//			usb_index = 0;
+//
+//		}
+//		else{
+//			usb_buffer[usb_index] = usb_rx_char;
+//
+//			// increment index
+//			usb_index++;
+//
+//			// prevent overflow
+//			if (usb_index == 1000){
+//				usb_index = 0;
+//			}
+//		}
+//	}
+//
+//    char rx_char;
+//
+//    if (HAL_UART_Receive(&huart1, (uint8_t*) &rx_char, 1, 1) == HAL_OK){
+//    	if (rx_char == '\n'){
+//    		// got the message
+//    		// Add a null terminator to make a valid C string
+//    		uart_buffer[uart_index] = '\0';
+//
+//    		// print to STM32 virtual COM port
+//    		printf("Received: %s\n", uart_buffer);
+//
+//    		// Echo message back to pico
+////    		HAL_UART_Transmit(&huart1, (uint8_t*) uart_buffer, strlen(uart_buffer), 10);
+//
+//    		// Send newline
+////    		char newline[] = "\n";
+//
+////    		HAL_UART_Transmit(&huart1, (uint8_t*) newline, 1, 1);
+//
+//    		// reset buffer index
+//    		uart_index = 0;
+//
+//    	}
+//    	else{
+//    		// store char in buffer
+//    		uart_buffer[uart_index] = rx_char;
+//
+//    		// increment index
+//    		uart_index++;
+//
+//    		// prevent buffer overflow
+//    		if (uart_index == 1000){
+//    			uart_index = 0;
+//    		}
+//    	}
+//    }
 
-    		// print to STM32 virtual COM port
-    		printf("Received: %s\n", uart_buffer);
+	  //my code end
 
-    		// Echo message back to pico
-//    		HAL_UART_Transmit(&huart1, (uint8_t*) uart_buffer, strlen(uart_buffer), 10);
+	  //claude
 
-    		// Send newline
-//    		char newline[] = "\n";
+  // Read from USB
+	  char usb_rx_char;
+	  if (HAL_UART_Receive(&hcom_uart[COM1], (uint8_t*)&usb_rx_char, 1, 100) == HAL_OK)
+	  {
+		  if (usb_rx_char == '\n')
+		  {
+			  usb_buffer[usb_index] = '\0';
 
-//    		HAL_UART_Transmit(&huart1, (uint8_t*) newline, 1, 1);
+			  // Send to Pico over UART
+			  HAL_UART_Transmit(&huart1, (uint8_t*)usb_buffer, strlen(usb_buffer), 100);
+			  HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 10);
 
-    		// reset buffer index
-    		uart_index = 0;
+			  // Print confirmation (only after full message received)
+			  printf("Sent to Pico: %s\r\n", usb_buffer);
 
-    	}
-    	else{
-    		// store char in buffer
-    		uart_buffer[uart_index] = rx_char;
+			  usb_index = 0;
+		  }
+		  else
+		  {
+			  if (usb_index < 999) usb_buffer[usb_index++] = usb_rx_char;
+		  }
+	  }
 
-    		// increment index
-    		uart_index++;
+	  // Read from Pico
+	  char rx_char;
+	  if (HAL_UART_Receive(&huart1, (uint8_t*)&rx_char, 1, 1) == HAL_OK)
+	  {
+		  if (rx_char == '\n')
+		  {
+			  uart_buffer[uart_index] = '\0';
+			  printf("From Pico: %s\r\n", uart_buffer);
+			  uart_index = 0;
+		  }
+		  else
+		  {
+			  if (uart_index < 999) uart_buffer[uart_index++] = rx_char;
+		  }
+	  }
 
-    		// prevent buffer overflow
-    		if (uart_index == 1000){
-    			uart_index = 0;
-    		}
-    	}
-    }
 
 
-	// Receive from USB
-	char usb_rx_char;
-	if (HAL_UART_Receive(&hcom_uart[COM1], (uint8_t*) &usb_rx_char, 1, 1) == HAL_OK){
-		// End of line?
-		if (usb_rx_char == '\n'){
-			usb_buffer[usb_index] = '\0';
+//	char usb_rx_char;
+//	HAL_StatusTypeDef status = HAL_UART_Receive(&hcom_uart[COM1], (uint8_t*)&usb_rx_char, 1, 1);
+//
+//	if (status == HAL_OK)
+//	{
+//		printf("GOT: %c (%d)\r\n", usb_rx_char, usb_rx_char);
+//	}
+//	else if (status == HAL_TIMEOUT)
+//	{
+//		// nothing received, keep looping
+//	}
+//	else
+//	{
+//		// HAL_ERROR or HAL_BUSY
+//		printf("UART error: %d\r\n", status);
+//	}
 
-			// Send to Pico over UART
-			HAL_UART_Transmit(&huart1, (uint8_t*) usb_buffer, strlen(usb_buffer), 10);
+//	HAL_UART_Transmit(&huart1, (uint8_t*)"Sandaru", 7, 100);
+//	HAL_Delay(10);
+//	// Send newline
+//	char newline[] = "\n";
+//
+//	HAL_UART_Transmit(&huart1, (uint8_t*) newline, 1, 10);
+//	HAL_Delay(10);
+//	printf("message sent");
 
-			// Send newline
-			char newline[] = "\n";
 
-			HAL_UART_Transmit(&huart1, (uint8_t*) newline, 1, 1);
+    // --- Read from USB (computer) using scanf, same path as printf ---
+//	char usb_line[100];
+//	if (scanf("%s", usb_line) == 1) {
+//		// Forward to Pico
+//		HAL_UART_Transmit(&huart1, (uint8_t*)usb_line, strlen(usb_line), 100);
+//		char newline[] = "\n";
+//		HAL_UART_Transmit(&huart1, (uint8_t*)newline, 1, 10);
+//		printf("Got a line\n");
+//		printf("%s\r\n", usb_line);
+//	}
 
-			usb_index = 0;
 
-		}
-		else{
-			usb_buffer[usb_index] = usb_rx_char;
-
-			// increment index
-			usb_index++;
-
-			// prevent overflow
-			if (usb_index == 1000){
-				usb_index = 0;
-			}
-		}
-	}
 
     /* USER CODE END WHILE */
 
@@ -338,6 +422,12 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+int __io_getchar(void)
+{
+    uint8_t ch;
+    HAL_UART_Receive(&hcom_uart[COM1], &ch, 1, HAL_MAX_DELAY);
+    return ch;
+}
 /* USER CODE END 4 */
 
 /**
