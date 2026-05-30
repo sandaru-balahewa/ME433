@@ -2,6 +2,7 @@ import sys
 import serial
 import time
 import matplotlib.pyplot as plt
+import numpy as np
 
 if len(sys.argv) < 2:
     print("Usage: hx_plot.py <serial_port> [baud_rate]")
@@ -80,3 +81,37 @@ plt.plot(times, values, marker='o', linestyle='-')
 plt.xlabel("Time (s)")
 plt.ylabel("Value")
 plt.title("HX711 Values vs. Time")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# FFT code from HW9
+
+Fs = len(times)/(times[-1]-times[0]) # sample rate
+Ts = 1.0/Fs; # sampling interval
+# ts = np.arange(0,t[-1],Ts) # time vector
+
+y = values # the data to make the fft from
+n = len(y) # length of the signal
+k = np.arange(n)
+T = n/Fs
+frq = k/T # two sides frequency range
+frq = frq[range(int(n/2))] # one side frequency range
+Y = np.fft.fft(y)/n # fft computing and normalization
+Y = Y[range(int(n/2))]
+
+
+# Plotting
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,8))
+fig.suptitle(f"Raw Signal FFT")
+ax1.plot(t,y,'b')
+ax1.set_xlabel('Time')
+ax1.set_ylabel('Amplitude')
+ax1.set_title("Time Series Plot")
+
+ax2.loglog(frq,abs(Y),'b') # plotting the fft
+ax2.set_xlabel('Freq (Hz)')
+ax2.set_ylabel('|Y(freq)|')
+ax2.set_title("Frequency Domain Signal Using FFT")
+plt.tight_layout()
+plt.show()
