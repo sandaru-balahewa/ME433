@@ -23,7 +23,7 @@ int main()
 
         // Wait for the computer to send a number of samples to collect
         scanf("%d", &num);
-        int avg = 570000;
+        int avg = 580000;
 
         // Read and store the asked number of samples from HX711
         for (int i=0; i<num; i++){
