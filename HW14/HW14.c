@@ -18,25 +18,26 @@ int main()
     while (true) {
         int num = 0;
         int val_arr[1000];
+        int raw_arr[1000];
         uint64_t t[1000];
 
         // Wait for the computer to send a number of samples to collect
         scanf("%d", &num);
-        int avg = -560000;
+        int avg = 570000;
 
         // Read and store the asked number of samples from HX711
         for (int i=0; i<num; i++){
-            int val = hx711_read_raw();
-
+            int val = -hx711_read_raw(); // Multiply by negative 1 because the sensor outputs negative numbers
+            raw_arr[i] = val;
             // IIR filter
-            avg = val*0.1 + avg*0.9;
+            avg = val*0.2 + avg*0.8;
             val_arr[i] = avg;
             t[i] = to_ms_since_boot(get_absolute_time());
         }
 
         // Print all the samples back to the serial monitor
         for (int i=0; i<num; i++){
-            printf("%d %llu %d\n", i, t[i], val_arr[i]);
+            printf("%d %llu %d %d\n", i, t[i], raw_arr[i], val_arr[i]);
         }
 
     }
