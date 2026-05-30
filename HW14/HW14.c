@@ -11,12 +11,34 @@ int hx711_read_raw(void);
 int main()
 {
     stdio_init_all();
-    // Initialize SCK and DT pins on HX711
-    init_pins();
+    // Initialize HX711
+    init_hx711();
+
 
     while (true) {
-        printf("Hello, world!\n");
-        sleep_ms(1000);
+        int num = 0;
+        int val_arr[1000];
+        uint64_t t[1000];
+
+        // Wait for the computer to send a number of samples to collect
+        scanf("%d", &num);
+        int avg = 828000;
+
+        // Read and store the asked number of samples from HX711
+        for (int i=0; i<num; i++){
+            int val = hx711_read_raw();
+
+            // IIR filter
+            avg = val*0.1 + avg*0.9;
+            val_arr[i] = avg;
+            t[i] = to_ms_since_boot(get_absolute_time());
+        }
+
+        // Print all the samples back to the serial monitor
+        for (int i=0; i<num; i++){
+            printf("%d %llu %d\n", i, t[i], val_arr[i]);
+        }
+
     }
 }
 
