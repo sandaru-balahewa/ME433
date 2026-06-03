@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "library.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -74,6 +74,7 @@ static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 static uint32_t BufferCmp8b(const uint8_t *pBuffer1, const uint8_t *pBuffer2, uint16_t BufferLength);
+
 
 /* USER CODE END PFP */
 
@@ -211,27 +212,29 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* Polling mode: Wait for one message received */
-    while (HAL_FDCAN_GetRxFifoFillLevel(&hfdcan1, FDCAN_RX_FIFO0) < 1U)
-    {
-      /* Do nothing, wait */
-    }
-
-    /* Retrieve Rx message from RX FIFO0 */
-    if (HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &rxHeader, rxData) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    /* Compare received RX message to expected data. Ignore if not matching. */
-    if ((rxHeader.Identifier == RX_ID) &&
-        (rxHeader.IdType     == FDCAN_STANDARD_ID) &&
-        (rxHeader.DataLength == FDCAN_DLC_BYTES_16) &&
-        (BufferCmp8b(txData, rxData, COUNTOF(rxData)) == 0U))
-    {
-      /* Turn LED1 on */
-      BSP_LED_On(LED1);
-    }
+//    /* Polling mode: Wait for one message received */
+//    while (HAL_FDCAN_GetRxFifoFillLevel(&hfdcan1, FDCAN_RX_FIFO0) < 1U)
+//    {
+//      /* Do nothing, wait */
+//    }
+//
+//    /* Retrieve Rx message from RX FIFO0 */
+//    if (HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &rxHeader, rxData) != HAL_OK)
+//    {
+//      Error_Handler();
+//    }
+//
+//    /* Compare received RX message to expected data. Ignore if not matching. */
+//    if ((rxHeader.Identifier == RX_ID) &&
+//        (rxHeader.IdType     == FDCAN_STANDARD_ID) &&
+//        (rxHeader.DataLength == FDCAN_DLC_BYTES_16) &&
+//        (BufferCmp8b(txData, rxData, COUNTOF(rxData)) == 0U))
+//    {
+//      /* Turn LED1 on */
+//      BSP_LED_On(LED1);
+//    }
+    uint32_t adc_val = read_adc(&hadc1);
+    printf("ADC: %i\n", adc_val);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
