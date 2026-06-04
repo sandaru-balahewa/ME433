@@ -63,7 +63,7 @@ main-build: FDCAN_Com_Polling.elf secondary-outputs
 
 # Tool invocations
 FDCAN_Com_Polling.elf FDCAN_Com_Polling.map: $(OBJS) $(USER_OBJS) C:\Users\sanda\OneDrive\ -\ Northwestern\ University\Courses\Spring\ 2026\ME433\ME433\HW16\FDCAN_Com_Polling\STM32CubeIDE\STM32C092RCTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "FDCAN_Com_Polling.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\sanda\OneDrive - Northwestern University\Courses\Spring 2026\ME433\ME433\HW16\FDCAN_Com_Polling\STM32CubeIDE\STM32C092RCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FDCAN_Com_Polling.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "FDCAN_Com_Polling.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\sanda\OneDrive - Northwestern University\Courses\Spring 2026\ME433\ME433\HW16\FDCAN_Com_Polling\STM32CubeIDE\STM32C092RCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FDCAN_Com_Polling.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

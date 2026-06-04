@@ -1,1 +1,5 @@
-../Application/User/library.c:10:10:read_adc	2
+../Application/User/library.c:17:10:read_adc	2
+../Application/User/library.c:32:6:init_ina219	1
+../Application/User/library.c:40:7:read_ina219	1
+../Application/User/library.c:48:6:writeINA219	1
+../Application/User/library.c:58:14:readINA219	1
