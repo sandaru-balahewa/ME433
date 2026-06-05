@@ -35,6 +35,9 @@
 /* USER CODE BEGIN PD */
 #define TX_ID          (0x111)   /* TX CAN message identifier    */
 #define RX_ID          (0x111)   /* RX CAN message identifier    */
+
+#define CCEINTMAX 1000
+#define WRAP 2400
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,6 +64,17 @@ uint8_t rxData[16U];
 static const uint8_t txData[] = { 0x10, 0x32, 0x54, 0x76, 0x98, 0x00, 0x11,
         0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00 };
 
+
+volatile int state = 0;
+const float Kp = 0.1;
+const float Ki = 0.01;
+
+// global arrays to store desired and actual current of ITEST
+volatile float cc_desired[400];
+volatile float cc_actual[400];
+volatile float cc_eint = 0;
+volatile int cc_index = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,11 +89,13 @@ static void MX_TIM2_Init(void);
 static uint32_t BufferCmp8b(const uint8_t *pBuffer1, const uint8_t *pBuffer2,
         uint16_t BufferLength);
 
+void init_cc_desired();
+void set_pwm(float duty);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern UART_HandleTypeDef hcom_uart[COMn];
 /* USER CODE END 0 */
 
 /**
@@ -201,8 +217,23 @@ int main(void) {
 		Error_Handler();
 	}
 
+	//Initialize the current sensor
+	init_ina219();
+
 	// Intialize the interrupt
 	HAL_TIM_Base_Start_IT(&htim2);
+
+	// Enable the PWM to control the motor
+
+	// Both inputs high means motor is off
+
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400); // High
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 2400); // High
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+
+	// Initialize the cc_desired array
+	init_cc_desired();
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
@@ -228,13 +259,55 @@ int main(void) {
 //      /* Turn LED1 on */
 //      BSP_LED_On(LED1);
 //    }
-		uint32_t position = read_adc(&hadc1);
+		char user_input;
 
-		float current = read_ina219();
+		if (HAL_UART_Receive(&hcom_uart[COM1], &user_input, 1, 10) == HAL_OK) {
+//			printf("Got: %c\n", user_input);
+		}
 
-		printf("Position: %i, Current: %.2f\n", position, current);
+		if (user_input == 'a'){
+			state = 1;
+			while (state == 1){
+				// Do nothing
+			}
 
-		HAL_Delay(100);
+			for (int i=0; i<400; i++){
+				printf("%d %f %f\n", i, cc_desired[i], cc_actual[i]);
+			}
+		}
+
+//		// Move the motor back and forth for 1 second
+//		// forward
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 1200); // High
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 2400); // High
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+//		HAL_Delay(500);
+//
+//		// stop
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400); // High
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 2400); // High
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+//		HAL_Delay(500);
+//
+//		// Backward
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400); // High
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 1200); // High
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+//		HAL_Delay(500);
+//
+//		// Stop
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400); // High
+//		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 2400); // High
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+////		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+//		HAL_Delay(500);
+
+
+
+
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
@@ -555,13 +628,79 @@ static void MX_GPIO_Init(void) {
 
 
 // timer based interrupt
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim == &htim2) {
-            // do your interrupt stuff here
-        }
+    	// Interrupt stuff
+//    	static volatile int count = 0;
+
+    	uint32_t position = read_adc(&hadc1);
+
+    	if ((position < 200) || (position > 3895)){
+    		// set the PWMs so that the motor is off
+    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400); // High
+    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 2400); // High
+    	}
+    	if (state == 1){
+    		float current_ma = read_ina219();
+    		cc_actual[cc_index] = current_ma;
+
+    		// calculate error
+    		float error = cc_desired[cc_index] - current_ma;
+
+    		// integral of the error
+    		cc_eint = cc_eint + error;
+
+    		// integrator anti windup
+			if (cc_eint > CCEINTMAX){
+				cc_eint = CCEINTMAX;
+			}
+			if (cc_eint < -CCEINTMAX){
+				cc_eint = -CCEINTMAX;
+			}
+
+			float u_percent = Kp * error + Ki * cc_eint;
+
+            // ensure u_percent is in (-100, 100) range
+            if (u_percent > 100){
+                u_percent = 100;
+            }
+            if (u_percent < -100){
+                u_percent = -100;
+            }
+
+            // Set the duty cycle
+            set_pwm(u_percent);
+
+            cc_index++;
+
+            if (cc_index == 400){
+            	cc_index = 0;
+            	state = 0;
+            	cc_eint = 0;
+            	set_pwm(0.0);
+            }
+
+    	}
+
     }
 }
+
+
+void set_pwm(float duty){
+    // if the duty cycle is outside (-100, 100) range, limit it to that range
+    if (duty > 100.0) duty = 100.0;
+    if (duty < -100.0) duty = -100.0;
+
+    if (duty >= 0) {
+    	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, WRAP); // High
+    	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, (100 - duty)*WRAP/100.0);
+    }
+    else{
+    	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, WRAP); // High
+    	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, (100 + duty)*WRAP/100.0);
+    }
+}
+
 
 
 /**
@@ -604,6 +743,22 @@ static uint32_t BufferCmp8b(const uint8_t *pBuffer1, const uint8_t *pBuffer2,
 		pBuffer2++;
 	}
 	return 0U;
+}
+
+void init_cc_desired(){
+    // Populate the cc_desired array
+    for (int i=0; i<100; i++){
+        cc_desired[i] = -100;
+    }
+    for (int i=100; i<200; i++){
+        cc_desired[i] = 100;
+    }
+    for (int i=200; i<300; i++){
+        cc_desired[i] = -100;
+    }
+    for (int i=300; i<400; i++){
+        cc_desired[i] = 100;
+    }
 }
 /* USER CODE END 4 */
 
