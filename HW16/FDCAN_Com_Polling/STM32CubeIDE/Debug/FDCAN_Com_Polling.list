@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000028  00000000  00000000  0000e1ec  2**0
                   CONTENTS, READONLY
- 12 .debug_line   0001afd2  00000000  00000000  0000e214  2**0
+ 12 .debug_line   0001afde  00000000  00000000  0000e214  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_line_str 000000ab  00000000  00000000  000291e6  2**0
+ 13 .debug_line_str 000000ab  00000000  00000000  000291f2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_info   00018696  00000000  00000000  00029291  2**0
+ 14 .debug_info   00018696  00000000  00000000  0002929d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_abbrev 00002ef6  00000000  00000000  00041927  2**0
+ 15 .debug_abbrev 00002ef6  00000000  00000000  00041933  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_aranges 000015b0  00000000  00000000  00044820  2**3
+ 16 .debug_aranges 000015b0  00000000  00000000  00044830  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_str    000a193f  00000000  00000000  00045dd0  2**0
+ 17 .debug_str    000a193f  00000000  00000000  00045de0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_rnglists 00001100  00000000  00000000  000e770f  2**0
+ 18 .debug_rnglists 00001100  00000000  00000000  000e771f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_macro  00019bcb  00000000  00000000  000e880f  2**0
+ 19 .debug_macro  00019bcb  00000000  00000000  000e881f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000043  00000000  00000000  001023da  2**0
+ 20 .comment      00000043  00000000  00000000  001023ea  2**0
                   CONTENTS, READONLY
- 21 .debug_frame  000061dc  00000000  00000000  00102420  2**2
+ 21 .debug_frame  000061dc  00000000  00000000  00102430  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -8170,15 +8170,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003cba:	6078      	str	r0, [r7, #4]
     if (htim == &htim2) {
  8003cbc:	687a      	ldr	r2, [r7, #4]
- 8003cbe:	4b4d      	ldr	r3, [pc, #308]	@ (8003df4 <HAL_TIM_PeriodElapsedCallback+0x140>)
+ 8003cbe:	4b4e      	ldr	r3, [pc, #312]	@ (8003df8 <HAL_TIM_PeriodElapsedCallback+0x144>)
  8003cc0:	429a      	cmp	r2, r3
  8003cc2:	d000      	beq.n	8003cc6 <HAL_TIM_PeriodElapsedCallback+0x12>
- 8003cc4:	e091      	b.n	8003dea <HAL_TIM_PeriodElapsedCallback+0x136>
+ 8003cc4:	e094      	b.n	8003df0 <HAL_TIM_PeriodElapsedCallback+0x13c>
     	// Interrupt stuff
 //    	static volatile int count = 0;
 
     	uint32_t position = read_adc(&hadc1);
- 8003cc6:	4b4c      	ldr	r3, [pc, #304]	@ (8003df8 <HAL_TIM_PeriodElapsedCallback+0x144>)
+ 8003cc6:	4b4d      	ldr	r3, [pc, #308]	@ (8003dfc <HAL_TIM_PeriodElapsedCallback+0x148>)
  8003cc8:	0018      	movs	r0, r3
  8003cca:	f7ff fbc2 	bl	8003452 <read_adc>
  8003cce:	0003      	movs	r3, r0
@@ -8189,187 +8189,190 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003cd4:	2bc7      	cmp	r3, #199	@ 0xc7
  8003cd6:	d903      	bls.n	8003ce0 <HAL_TIM_PeriodElapsedCallback+0x2c>
  8003cd8:	693b      	ldr	r3, [r7, #16]
- 8003cda:	4a48      	ldr	r2, [pc, #288]	@ (8003dfc <HAL_TIM_PeriodElapsedCallback+0x148>)
+ 8003cda:	4a49      	ldr	r2, [pc, #292]	@ (8003e00 <HAL_TIM_PeriodElapsedCallback+0x14c>)
  8003cdc:	4293      	cmp	r3, r2
- 8003cde:	d909      	bls.n	8003cf4 <HAL_TIM_PeriodElapsedCallback+0x40>
+ 8003cde:	d903      	bls.n	8003ce8 <HAL_TIM_PeriodElapsedCallback+0x34>
     		// set the PWMs so that the motor is off
-    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400); // High
- 8003ce0:	4b47      	ldr	r3, [pc, #284]	@ (8003e00 <HAL_TIM_PeriodElapsedCallback+0x14c>)
- 8003ce2:	681b      	ldr	r3, [r3, #0]
- 8003ce4:	2296      	movs	r2, #150	@ 0x96
- 8003ce6:	0112      	lsls	r2, r2, #4
- 8003ce8:	639a      	str	r2, [r3, #56]	@ 0x38
-    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 2400); // High
- 8003cea:	4b45      	ldr	r3, [pc, #276]	@ (8003e00 <HAL_TIM_PeriodElapsedCallback+0x14c>)
- 8003cec:	681b      	ldr	r3, [r3, #0]
- 8003cee:	2296      	movs	r2, #150	@ 0x96
- 8003cf0:	0112      	lsls	r2, r2, #4
- 8003cf2:	641a      	str	r2, [r3, #64]	@ 0x40
+    		set_pwm(0.0);
+ 8003ce0:	2300      	movs	r3, #0
+ 8003ce2:	1c18      	adds	r0, r3, #0
+ 8003ce4:	f000 f8a4 	bl	8003e30 <set_pwm>
     	}
     	if (state == 1){
- 8003cf4:	4b43      	ldr	r3, [pc, #268]	@ (8003e04 <HAL_TIM_PeriodElapsedCallback+0x150>)
- 8003cf6:	681b      	ldr	r3, [r3, #0]
- 8003cf8:	2b01      	cmp	r3, #1
- 8003cfa:	d000      	beq.n	8003cfe <HAL_TIM_PeriodElapsedCallback+0x4a>
- 8003cfc:	e075      	b.n	8003dea <HAL_TIM_PeriodElapsedCallback+0x136>
+ 8003ce8:	4b46      	ldr	r3, [pc, #280]	@ (8003e04 <HAL_TIM_PeriodElapsedCallback+0x150>)
+ 8003cea:	681b      	ldr	r3, [r3, #0]
+ 8003cec:	2b01      	cmp	r3, #1
+ 8003cee:	d000      	beq.n	8003cf2 <HAL_TIM_PeriodElapsedCallback+0x3e>
+ 8003cf0:	e07e      	b.n	8003df0 <HAL_TIM_PeriodElapsedCallback+0x13c>
     		float current_ma = read_ina219();
- 8003cfe:	f7ff fbe5 	bl	80034cc <read_ina219>
- 8003d02:	1c03      	adds	r3, r0, #0
- 8003d04:	60fb      	str	r3, [r7, #12]
+ 8003cf2:	f7ff fbeb 	bl	80034cc <read_ina219>
+ 8003cf6:	1c03      	adds	r3, r0, #0
+ 8003cf8:	60fb      	str	r3, [r7, #12]
     		cc_actual[cc_index] = current_ma;
- 8003d06:	4b40      	ldr	r3, [pc, #256]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
- 8003d08:	681a      	ldr	r2, [r3, #0]
- 8003d0a:	4b40      	ldr	r3, [pc, #256]	@ (8003e0c <HAL_TIM_PeriodElapsedCallback+0x158>)
- 8003d0c:	0092      	lsls	r2, r2, #2
- 8003d0e:	68f9      	ldr	r1, [r7, #12]
- 8003d10:	50d1      	str	r1, [r2, r3]
+ 8003cfa:	4b43      	ldr	r3, [pc, #268]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
+ 8003cfc:	681a      	ldr	r2, [r3, #0]
+ 8003cfe:	4b43      	ldr	r3, [pc, #268]	@ (8003e0c <HAL_TIM_PeriodElapsedCallback+0x158>)
+ 8003d00:	0092      	lsls	r2, r2, #2
+ 8003d02:	68f9      	ldr	r1, [r7, #12]
+ 8003d04:	50d1      	str	r1, [r2, r3]
 
     		// calculate error
     		float error = cc_desired[cc_index] - current_ma;
- 8003d12:	4b3d      	ldr	r3, [pc, #244]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
- 8003d14:	681a      	ldr	r2, [r3, #0]
- 8003d16:	4b3e      	ldr	r3, [pc, #248]	@ (8003e10 <HAL_TIM_PeriodElapsedCallback+0x15c>)
- 8003d18:	0092      	lsls	r2, r2, #2
- 8003d1a:	58d3      	ldr	r3, [r2, r3]
- 8003d1c:	68f9      	ldr	r1, [r7, #12]
- 8003d1e:	1c18      	adds	r0, r3, #0
- 8003d20:	f7fd f832 	bl	8000d88 <__aeabi_fsub>
- 8003d24:	1c03      	adds	r3, r0, #0
- 8003d26:	60bb      	str	r3, [r7, #8]
+ 8003d06:	4b40      	ldr	r3, [pc, #256]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
+ 8003d08:	681a      	ldr	r2, [r3, #0]
+ 8003d0a:	4b41      	ldr	r3, [pc, #260]	@ (8003e10 <HAL_TIM_PeriodElapsedCallback+0x15c>)
+ 8003d0c:	0092      	lsls	r2, r2, #2
+ 8003d0e:	58d3      	ldr	r3, [r2, r3]
+ 8003d10:	68f9      	ldr	r1, [r7, #12]
+ 8003d12:	1c18      	adds	r0, r3, #0
+ 8003d14:	f7fd f838 	bl	8000d88 <__aeabi_fsub>
+ 8003d18:	1c03      	adds	r3, r0, #0
+ 8003d1a:	60bb      	str	r3, [r7, #8]
 
     		// integral of the error
     		cc_eint = cc_eint + error;
- 8003d28:	4b3a      	ldr	r3, [pc, #232]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
- 8003d2a:	681b      	ldr	r3, [r3, #0]
- 8003d2c:	68b9      	ldr	r1, [r7, #8]
- 8003d2e:	1c18      	adds	r0, r3, #0
- 8003d30:	f7fc fc12 	bl	8000558 <__aeabi_fadd>
- 8003d34:	1c03      	adds	r3, r0, #0
- 8003d36:	1c1a      	adds	r2, r3, #0
- 8003d38:	4b36      	ldr	r3, [pc, #216]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
- 8003d3a:	601a      	str	r2, [r3, #0]
+ 8003d1c:	4b3d      	ldr	r3, [pc, #244]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003d1e:	681b      	ldr	r3, [r3, #0]
+ 8003d20:	68b9      	ldr	r1, [r7, #8]
+ 8003d22:	1c18      	adds	r0, r3, #0
+ 8003d24:	f7fc fc18 	bl	8000558 <__aeabi_fadd>
+ 8003d28:	1c03      	adds	r3, r0, #0
+ 8003d2a:	1c1a      	adds	r2, r3, #0
+ 8003d2c:	4b39      	ldr	r3, [pc, #228]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003d2e:	601a      	str	r2, [r3, #0]
 
     		// integrator anti windup
 			if (cc_eint > CCEINTMAX){
- 8003d3c:	4b35      	ldr	r3, [pc, #212]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
- 8003d3e:	681b      	ldr	r3, [r3, #0]
- 8003d40:	4935      	ldr	r1, [pc, #212]	@ (8003e18 <HAL_TIM_PeriodElapsedCallback+0x164>)
- 8003d42:	1c18      	adds	r0, r3, #0
- 8003d44:	f7fc fbd6 	bl	80004f4 <__aeabi_fcmpgt>
- 8003d48:	1e03      	subs	r3, r0, #0
- 8003d4a:	d002      	beq.n	8003d52 <HAL_TIM_PeriodElapsedCallback+0x9e>
+ 8003d30:	4b38      	ldr	r3, [pc, #224]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003d32:	681b      	ldr	r3, [r3, #0]
+ 8003d34:	4938      	ldr	r1, [pc, #224]	@ (8003e18 <HAL_TIM_PeriodElapsedCallback+0x164>)
+ 8003d36:	1c18      	adds	r0, r3, #0
+ 8003d38:	f7fc fbdc 	bl	80004f4 <__aeabi_fcmpgt>
+ 8003d3c:	1e03      	subs	r3, r0, #0
+ 8003d3e:	d002      	beq.n	8003d46 <HAL_TIM_PeriodElapsedCallback+0x92>
 				cc_eint = CCEINTMAX;
- 8003d4c:	4b31      	ldr	r3, [pc, #196]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
- 8003d4e:	4a32      	ldr	r2, [pc, #200]	@ (8003e18 <HAL_TIM_PeriodElapsedCallback+0x164>)
- 8003d50:	601a      	str	r2, [r3, #0]
+ 8003d40:	4b34      	ldr	r3, [pc, #208]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003d42:	4a35      	ldr	r2, [pc, #212]	@ (8003e18 <HAL_TIM_PeriodElapsedCallback+0x164>)
+ 8003d44:	601a      	str	r2, [r3, #0]
 			}
 			if (cc_eint < -CCEINTMAX){
- 8003d52:	4b30      	ldr	r3, [pc, #192]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
- 8003d54:	681b      	ldr	r3, [r3, #0]
- 8003d56:	4931      	ldr	r1, [pc, #196]	@ (8003e1c <HAL_TIM_PeriodElapsedCallback+0x168>)
- 8003d58:	1c18      	adds	r0, r3, #0
- 8003d5a:	f7fc fbb7 	bl	80004cc <__aeabi_fcmplt>
- 8003d5e:	1e03      	subs	r3, r0, #0
- 8003d60:	d002      	beq.n	8003d68 <HAL_TIM_PeriodElapsedCallback+0xb4>
+ 8003d46:	4b33      	ldr	r3, [pc, #204]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003d48:	681b      	ldr	r3, [r3, #0]
+ 8003d4a:	4934      	ldr	r1, [pc, #208]	@ (8003e1c <HAL_TIM_PeriodElapsedCallback+0x168>)
+ 8003d4c:	1c18      	adds	r0, r3, #0
+ 8003d4e:	f7fc fbbd 	bl	80004cc <__aeabi_fcmplt>
+ 8003d52:	1e03      	subs	r3, r0, #0
+ 8003d54:	d002      	beq.n	8003d5c <HAL_TIM_PeriodElapsedCallback+0xa8>
 				cc_eint = -CCEINTMAX;
- 8003d62:	4b2c      	ldr	r3, [pc, #176]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
- 8003d64:	4a2d      	ldr	r2, [pc, #180]	@ (8003e1c <HAL_TIM_PeriodElapsedCallback+0x168>)
- 8003d66:	601a      	str	r2, [r3, #0]
+ 8003d56:	4b2f      	ldr	r3, [pc, #188]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003d58:	4a30      	ldr	r2, [pc, #192]	@ (8003e1c <HAL_TIM_PeriodElapsedCallback+0x168>)
+ 8003d5a:	601a      	str	r2, [r3, #0]
 			}
 
 			float u_percent = Kp * error + Ki * cc_eint;
- 8003d68:	4b2d      	ldr	r3, [pc, #180]	@ (8003e20 <HAL_TIM_PeriodElapsedCallback+0x16c>)
- 8003d6a:	68b9      	ldr	r1, [r7, #8]
- 8003d6c:	1c18      	adds	r0, r3, #0
- 8003d6e:	f7fc feb9 	bl	8000ae4 <__aeabi_fmul>
- 8003d72:	1c03      	adds	r3, r0, #0
- 8003d74:	1c1c      	adds	r4, r3, #0
- 8003d76:	4a2b      	ldr	r2, [pc, #172]	@ (8003e24 <HAL_TIM_PeriodElapsedCallback+0x170>)
- 8003d78:	4b26      	ldr	r3, [pc, #152]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
- 8003d7a:	681b      	ldr	r3, [r3, #0]
- 8003d7c:	1c19      	adds	r1, r3, #0
- 8003d7e:	1c10      	adds	r0, r2, #0
- 8003d80:	f7fc feb0 	bl	8000ae4 <__aeabi_fmul>
- 8003d84:	1c03      	adds	r3, r0, #0
- 8003d86:	1c19      	adds	r1, r3, #0
- 8003d88:	1c20      	adds	r0, r4, #0
- 8003d8a:	f7fc fbe5 	bl	8000558 <__aeabi_fadd>
- 8003d8e:	1c03      	adds	r3, r0, #0
- 8003d90:	617b      	str	r3, [r7, #20]
+ 8003d5c:	4b30      	ldr	r3, [pc, #192]	@ (8003e20 <HAL_TIM_PeriodElapsedCallback+0x16c>)
+ 8003d5e:	68b9      	ldr	r1, [r7, #8]
+ 8003d60:	1c18      	adds	r0, r3, #0
+ 8003d62:	f7fc febf 	bl	8000ae4 <__aeabi_fmul>
+ 8003d66:	1c03      	adds	r3, r0, #0
+ 8003d68:	1c1c      	adds	r4, r3, #0
+ 8003d6a:	4a2e      	ldr	r2, [pc, #184]	@ (8003e24 <HAL_TIM_PeriodElapsedCallback+0x170>)
+ 8003d6c:	4b29      	ldr	r3, [pc, #164]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003d6e:	681b      	ldr	r3, [r3, #0]
+ 8003d70:	1c19      	adds	r1, r3, #0
+ 8003d72:	1c10      	adds	r0, r2, #0
+ 8003d74:	f7fc feb6 	bl	8000ae4 <__aeabi_fmul>
+ 8003d78:	1c03      	adds	r3, r0, #0
+ 8003d7a:	1c19      	adds	r1, r3, #0
+ 8003d7c:	1c20      	adds	r0, r4, #0
+ 8003d7e:	f7fc fbeb 	bl	8000558 <__aeabi_fadd>
+ 8003d82:	1c03      	adds	r3, r0, #0
+ 8003d84:	617b      	str	r3, [r7, #20]
 
             // ensure u_percent is in (-100, 100) range
             if (u_percent > 100){
- 8003d92:	4925      	ldr	r1, [pc, #148]	@ (8003e28 <HAL_TIM_PeriodElapsedCallback+0x174>)
- 8003d94:	6978      	ldr	r0, [r7, #20]
- 8003d96:	f7fc fbad 	bl	80004f4 <__aeabi_fcmpgt>
- 8003d9a:	1e03      	subs	r3, r0, #0
- 8003d9c:	d001      	beq.n	8003da2 <HAL_TIM_PeriodElapsedCallback+0xee>
+ 8003d86:	4928      	ldr	r1, [pc, #160]	@ (8003e28 <HAL_TIM_PeriodElapsedCallback+0x174>)
+ 8003d88:	6978      	ldr	r0, [r7, #20]
+ 8003d8a:	f7fc fbb3 	bl	80004f4 <__aeabi_fcmpgt>
+ 8003d8e:	1e03      	subs	r3, r0, #0
+ 8003d90:	d001      	beq.n	8003d96 <HAL_TIM_PeriodElapsedCallback+0xe2>
                 u_percent = 100;
- 8003d9e:	4b22      	ldr	r3, [pc, #136]	@ (8003e28 <HAL_TIM_PeriodElapsedCallback+0x174>)
- 8003da0:	617b      	str	r3, [r7, #20]
+ 8003d92:	4b25      	ldr	r3, [pc, #148]	@ (8003e28 <HAL_TIM_PeriodElapsedCallback+0x174>)
+ 8003d94:	617b      	str	r3, [r7, #20]
             }
             if (u_percent < -100){
- 8003da2:	4922      	ldr	r1, [pc, #136]	@ (8003e2c <HAL_TIM_PeriodElapsedCallback+0x178>)
- 8003da4:	6978      	ldr	r0, [r7, #20]
- 8003da6:	f7fc fb91 	bl	80004cc <__aeabi_fcmplt>
- 8003daa:	1e03      	subs	r3, r0, #0
- 8003dac:	d001      	beq.n	8003db2 <HAL_TIM_PeriodElapsedCallback+0xfe>
+ 8003d96:	4925      	ldr	r1, [pc, #148]	@ (8003e2c <HAL_TIM_PeriodElapsedCallback+0x178>)
+ 8003d98:	6978      	ldr	r0, [r7, #20]
+ 8003d9a:	f7fc fb97 	bl	80004cc <__aeabi_fcmplt>
+ 8003d9e:	1e03      	subs	r3, r0, #0
+ 8003da0:	d001      	beq.n	8003da6 <HAL_TIM_PeriodElapsedCallback+0xf2>
                 u_percent = -100;
- 8003dae:	4b1f      	ldr	r3, [pc, #124]	@ (8003e2c <HAL_TIM_PeriodElapsedCallback+0x178>)
- 8003db0:	617b      	str	r3, [r7, #20]
+ 8003da2:	4b22      	ldr	r3, [pc, #136]	@ (8003e2c <HAL_TIM_PeriodElapsedCallback+0x178>)
+ 8003da4:	617b      	str	r3, [r7, #20]
+            }
+
+            if ((position < 200) || (position > 3895)){
+ 8003da6:	693b      	ldr	r3, [r7, #16]
+ 8003da8:	2bc7      	cmp	r3, #199	@ 0xc7
+ 8003daa:	d903      	bls.n	8003db4 <HAL_TIM_PeriodElapsedCallback+0x100>
+ 8003dac:	693b      	ldr	r3, [r7, #16]
+ 8003dae:	4a14      	ldr	r2, [pc, #80]	@ (8003e00 <HAL_TIM_PeriodElapsedCallback+0x14c>)
+ 8003db0:	4293      	cmp	r3, r2
+ 8003db2:	d901      	bls.n	8003db8 <HAL_TIM_PeriodElapsedCallback+0x104>
+            	u_percent = 0.0;
+ 8003db4:	2300      	movs	r3, #0
+ 8003db6:	617b      	str	r3, [r7, #20]
             }
 
             // Set the duty cycle
             set_pwm(u_percent);
- 8003db2:	697b      	ldr	r3, [r7, #20]
- 8003db4:	1c18      	adds	r0, r3, #0
- 8003db6:	f000 f83b 	bl	8003e30 <set_pwm>
+ 8003db8:	697b      	ldr	r3, [r7, #20]
+ 8003dba:	1c18      	adds	r0, r3, #0
+ 8003dbc:	f000 f838 	bl	8003e30 <set_pwm>
 
             cc_index++;
- 8003dba:	4b13      	ldr	r3, [pc, #76]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
- 8003dbc:	681b      	ldr	r3, [r3, #0]
- 8003dbe:	1c5a      	adds	r2, r3, #1
  8003dc0:	4b11      	ldr	r3, [pc, #68]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
- 8003dc2:	601a      	str	r2, [r3, #0]
+ 8003dc2:	681b      	ldr	r3, [r3, #0]
+ 8003dc4:	1c5a      	adds	r2, r3, #1
+ 8003dc6:	4b10      	ldr	r3, [pc, #64]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
+ 8003dc8:	601a      	str	r2, [r3, #0]
 
             if (cc_index == 400){
- 8003dc4:	4b10      	ldr	r3, [pc, #64]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
- 8003dc6:	681a      	ldr	r2, [r3, #0]
- 8003dc8:	23c8      	movs	r3, #200	@ 0xc8
- 8003dca:	005b      	lsls	r3, r3, #1
- 8003dcc:	429a      	cmp	r2, r3
- 8003dce:	d10c      	bne.n	8003dea <HAL_TIM_PeriodElapsedCallback+0x136>
+ 8003dca:	4b0f      	ldr	r3, [pc, #60]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
+ 8003dcc:	681a      	ldr	r2, [r3, #0]
+ 8003dce:	23c8      	movs	r3, #200	@ 0xc8
+ 8003dd0:	005b      	lsls	r3, r3, #1
+ 8003dd2:	429a      	cmp	r2, r3
+ 8003dd4:	d10c      	bne.n	8003df0 <HAL_TIM_PeriodElapsedCallback+0x13c>
             	cc_index = 0;
- 8003dd0:	4b0d      	ldr	r3, [pc, #52]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
- 8003dd2:	2200      	movs	r2, #0
- 8003dd4:	601a      	str	r2, [r3, #0]
-            	state = 0;
- 8003dd6:	4b0b      	ldr	r3, [pc, #44]	@ (8003e04 <HAL_TIM_PeriodElapsedCallback+0x150>)
+ 8003dd6:	4b0c      	ldr	r3, [pc, #48]	@ (8003e08 <HAL_TIM_PeriodElapsedCallback+0x154>)
  8003dd8:	2200      	movs	r2, #0
  8003dda:	601a      	str	r2, [r3, #0]
-            	cc_eint = 0;
- 8003ddc:	4b0d      	ldr	r3, [pc, #52]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+            	state = 0;
+ 8003ddc:	4b09      	ldr	r3, [pc, #36]	@ (8003e04 <HAL_TIM_PeriodElapsedCallback+0x150>)
  8003dde:	2200      	movs	r2, #0
  8003de0:	601a      	str	r2, [r3, #0]
+            	cc_eint = 0;
+ 8003de2:	4b0c      	ldr	r3, [pc, #48]	@ (8003e14 <HAL_TIM_PeriodElapsedCallback+0x160>)
+ 8003de4:	2200      	movs	r2, #0
+ 8003de6:	601a      	str	r2, [r3, #0]
             	set_pwm(0.0);
- 8003de2:	2300      	movs	r3, #0
- 8003de4:	1c18      	adds	r0, r3, #0
- 8003de6:	f000 f823 	bl	8003e30 <set_pwm>
+ 8003de8:	2300      	movs	r3, #0
+ 8003dea:	1c18      	adds	r0, r3, #0
+ 8003dec:	f000 f820 	bl	8003e30 <set_pwm>
             }
 
     	}
 
     }
 }
- 8003dea:	46c0      	nop			@ (mov r8, r8)
- 8003dec:	46bd      	mov	sp, r7
- 8003dee:	b007      	add	sp, #28
- 8003df0:	bd90      	pop	{r4, r7, pc}
- 8003df2:	46c0      	nop			@ (mov r8, r8)
- 8003df4:	20000380 	.word	0x20000380
- 8003df8:	20000218 	.word	0x20000218
- 8003dfc:	00000f37 	.word	0x00000f37
- 8003e00:	20000334 	.word	0x20000334
+ 8003df0:	46c0      	nop			@ (mov r8, r8)
+ 8003df2:	46bd      	mov	sp, r7
+ 8003df4:	b007      	add	sp, #28
+ 8003df6:	bd90      	pop	{r4, r7, pc}
+ 8003df8:	20000380 	.word	0x20000380
+ 8003dfc:	20000218 	.word	0x20000218
+ 8003e00:	00000f37 	.word	0x00000f37
  8003e04:	200003f0 	.word	0x200003f0
  8003e08:	20001078 	.word	0x20001078
  8003e0c:	20000a34 	.word	0x20000a34
@@ -8377,8 +8380,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003e14:	20001074 	.word	0x20001074
  8003e18:	447a0000 	.word	0x447a0000
  8003e1c:	c47a0000 	.word	0xc47a0000
- 8003e20:	3dcccccd 	.word	0x3dcccccd
- 8003e24:	3c23d70a 	.word	0x3c23d70a
+ 8003e20:	3db851ec 	.word	0x3db851ec
+ 8003e24:	3cf5c28f 	.word	0x3cf5c28f
  8003e28:	42c80000 	.word	0x42c80000
  8003e2c:	c2c80000 	.word	0xc2c80000
 
