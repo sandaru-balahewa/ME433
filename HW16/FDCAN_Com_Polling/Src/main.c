@@ -66,8 +66,8 @@ static const uint8_t txData[] = { 0x10, 0x32, 0x54, 0x76, 0x98, 0x00, 0x11,
 
 
 volatile int state = 0;
-const float Kp = 0.1;
-const float Ki = 0.01;
+const float Kp = 0.09;
+const float Ki = 0.03;
 
 // global arrays to store desired and actual current of ITEST
 volatile float cc_desired[400];
@@ -637,8 +637,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
     	if ((position < 200) || (position > 3895)){
     		// set the PWMs so that the motor is off
-    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400); // High
-    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 2400); // High
+    		set_pwm(0.0);
     	}
     	if (state == 1){
     		float current_ma = read_ina219();
@@ -666,6 +665,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
             }
             if (u_percent < -100){
                 u_percent = -100;
+            }
+
+            if ((position < 200) || (position > 3895)){
+            	u_percent = 0.0;
             }
 
             // Set the duty cycle
