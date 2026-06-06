@@ -35,5 +35,6 @@ plt.plot(t,ref,'r*-',t,data,'b*-')
 plt.title('Current Control Test: Score = ' + str(score))
 plt.ylabel('Value (mA)')
 plt.xlabel('Index')
+plt.tight_layout()
 plt.show()
 
