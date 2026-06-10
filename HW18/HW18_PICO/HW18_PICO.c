@@ -16,7 +16,7 @@
 #define SCK_PIN 21
 #define DATA_PIN 20
 #define CLOCK_TIME_US 1
-#define HX711_OFFSET 595000   // zero-load raw value (calibrate this)
+#define HX711_OFFSET 587000   // zero-load raw value (calibrate this)
 
 
 // Encoder Registers and addresses
@@ -26,19 +26,21 @@
 #define ANGLE_H 0x0E
 
 // Angle thresholds (raw 0-4095 units)
-#define ANGLE_FREE_LOW      2250     // below this: ramp force up (left wall)
-#define ANGLE_FREE_HIGH     3250     // above this: ramp force up (right wall)
+#define ANGLE_FREE_LOW      2350     // below this: ramp force up (left wall)
+#define ANGLE_FREE_HIGH     3150     // above this: ramp force up (right wall)
 #define ANGLE_WALL_LOW      2050     // at/below this: full left wall force
 #define ANGLE_WALL_HIGH     3450     // at/above this: full right wall force
-#define WALL_FORCE_MAX_MA   10000.0f  // max desired force in mA (tune to motor)
+#define WALL_FORCE_MAX_MA   25000.0f  // max desired force in mA (tune to motor)
+
+#define ASSIST_FORCE 5000.0f
 
 // PD controller gains
-#define KP  -0.1f
-#define KD  0.0f
+#define KP  0.03f
+#define KD  0.0005f
 
 // Current clamp sent to STM32 (mA)
 // ---------------------------------------------------------------------------
-#define CURRENT_MAX_MA  1000.0f
+#define CURRENT_MAX_MA  1200.0f
 
 // // UART to STM32
 // // Pico UART1: TX=GP8, RX=GP9  →  wire GP8 to STM32 UART RX, share GND
@@ -95,22 +97,54 @@ int main()
     const float dt = 0.01f;   // 100 Hz loop (sleep_ms(10) below)
 
     while (true) {
-        uint16_t angle       = read_raw_angle();
-        float force_raw   = (float)hx711_read_raw();
-        float desired_force  = compute_desired_force(angle);
+        uint16_t angle = read_raw_angle();
+        float force_raw = (float)hx711_read_raw();
+        
+        // Angular velocity estimate
+        static uint16_t prev_angle = 0;
 
+        // encoder wraps at 4096 counts
+        int32_t delta_angle = (int32_t)angle - (int32_t)prev_angle;
+
+        if (delta_angle > 2048)  delta_angle -= 4096;
+        if (delta_angle < -2048) delta_angle += 4096;
+
+        float angle_velocity = (float)delta_angle / dt;   // counts/sec
+
+        prev_angle = angle;
+
+        // Force filtering
         // low pass filter the force as it's noisy
         static float force_filt = 0.0f;
 
-        float actual_force = 0.95*force_filt + 0.05*force_raw;
+        force_filt = 0.2*force_filt + 0.8*force_raw;
+        float actual_force = force_filt;
 
- 
-        // printf("%f\n", actual_force);
-        // PD controller
+        // Haptic wall logic
+        float desired_force  = compute_desired_force(angle);
 
-        float error      = desired_force - actual_force;
+        // LEFT SIDE:
+        // assist if user is moving right (toward center)
+        if (angle <= ANGLE_WALL_LOW && angle_velocity > 5.0f) {
+            desired_force = ASSIST_FORCE;
+        }
 
-        if (fabsf(error) < 500.0f){
+        // RIGHT SIDE:
+        // assist if user is moving left (toward center)
+        else if (angle >= ANGLE_WALL_HIGH && angle_velocity < -5.0f) {
+            desired_force = -ASSIST_FORCE;
+        }
+
+        float error = desired_force - actual_force;
+
+        if (error > 0){
+            error -= 3000;
+        }
+        else{
+            error += 3000;
+        }
+
+        if (fabsf(error) < 1500.0f){
             error = 0.0f;
         }
         float derivative = (error - prev_error) / dt;
@@ -235,10 +269,10 @@ int hx711_read_raw(void){
 // ---------------------------------------------------------------------------
 static float compute_desired_force(uint16_t angle) {
     if (angle <= ANGLE_WALL_LOW) {
-        return -WALL_FORCE_MAX_MA;   // full left wall
+        return WALL_FORCE_MAX_MA;   // full left wall. positive -> pushes right
     }
     if (angle >= ANGLE_WALL_HIGH) {
-        return  WALL_FORCE_MAX_MA;   // full right wall
+        return  -WALL_FORCE_MAX_MA;   // full right wall
     }
     if (angle >= ANGLE_FREE_LOW && angle <= ANGLE_FREE_HIGH) {
         return 0.0f;                 // free middle zone
@@ -247,12 +281,12 @@ static float compute_desired_force(uint16_t angle) {
         // left ramp: ANGLE_WALL_LOW -> ANGLE_FREE_LOW maps to -MAX -> 0
         float t = (float)(angle - ANGLE_WALL_LOW) /
                   (float)(ANGLE_FREE_LOW - ANGLE_WALL_LOW);
-        return -WALL_FORCE_MAX_MA * (1.0f - t);
+        return WALL_FORCE_MAX_MA * (1.0f - t);
     }
     // right ramp: ANGLE_FREE_HIGH -> ANGLE_WALL_HIGH maps to 0 -> +MAX
     float t = (float)(angle - ANGLE_FREE_HIGH) /
               (float)(ANGLE_WALL_HIGH - ANGLE_FREE_HIGH);
-    return WALL_FORCE_MAX_MA * t;
+    return -WALL_FORCE_MAX_MA * t;
 }
 
 // // UART Functions
