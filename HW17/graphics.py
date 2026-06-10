@@ -26,7 +26,7 @@ BAUD_RATE    = 115200
 ANGLE_MIN    = 2000             # Raw angle value at one end of paddle travel
 ANGLE_MAX    = 3500          # Raw angle value at other end (~70 deg * 4096/360 ≈ 796)
 
-WIDTH, HEIGHT = 1100, 500
+WIDTH, HEIGHT = 1200, 700
 FPS           = 60
 
 # ---------------------------------------------------------------------------
@@ -53,8 +53,8 @@ TERRAIN_POINTS = [
 # ---------------------------------------------------------------------------
 
 BG          = ( 18,  20,  28)
-GROUND_FILL = ( 30,  34,  48)
-TERRAIN_COL = ( 80, 180, 140)   # teal line
+GROUND_FILL = ( 23, 77, 7)
+TERRAIN_COL = ( 50,  168,  60)   # teal line
 CHAR_COL    = (240, 200,  60)   # amber character
 CHAR_WHEEL  = ( 60,  60,  80)
 ACCENT      = ( 80, 180, 140)
@@ -116,7 +116,7 @@ def draw_terrain(surf, terrain_px, h):
         return
     poly = list(terrain_px) + [(terrain_px[-1][0], h), (terrain_px[0][0], h)]
     pygame.draw.polygon(surf, GROUND_FILL, poly)
-    pygame.draw.lines(surf, TERRAIN_COL, False, terrain_px, 3)
+    pygame.draw.lines(surf, TERRAIN_COL, False, terrain_px, 5)
 
 def draw_character(surf, cx, cy, wheel_r=10):
     """Draw a simple wheeled character (circle body + two wheels)."""
@@ -217,8 +217,8 @@ def main():
         screen.blit(font_small.render(pos_text,        True, TEXT_COL),     (20, 70))
         screen.blit(font_small.render(force_text,      True, TEXT_COL),     (20, 90))
 
-        hint = "ESC to quit  |  Edit TERRAIN_POINTS to add hills for HW18"
-        screen.blit(font_small.render(hint, True, (70, 80, 100)), (20, HEIGHT - 24))
+        hint = "ESC to quit"
+        screen.blit(font_small.render(hint, True, (38, 38, 41)), (20, HEIGHT - 24))
 
         # Force bar (preview of haptic output)
         bar_x, bar_y, bar_w, bar_h = WIDTH - 180, 16, 140, 14
