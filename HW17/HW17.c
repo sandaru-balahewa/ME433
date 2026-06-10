@@ -17,7 +17,7 @@
 
 
 void initialize_encoder(void);
-
+uint16_t read_raw_angle(void);
 
 int main()
 {
@@ -32,11 +32,16 @@ int main()
     gpio_pull_up(I2C_SCL);
 
     sleep_ms(10);
-
+    initialize_encoder();
 
     while (true) {
-        printf("Hello, world!\n");
-        sleep_ms(1000);
+        
+
+        uint16_t raw_angle = read_raw_angle();
+        printf("%d\n", raw_angle);
+        sleep_ms(10);
+
+        
     }
 }
 
@@ -59,4 +64,16 @@ void initialize_encoder(void){
         // If true, magnet too strong
         printf("Magnet too strong\n");
     }
+}
+
+uint16_t read_raw_angle(void){
+    uint8_t reg = RAW_ANGLE_H;
+    uint8_t buf[2];
+    i2c_write_blocking(i2c0, ENCODER_I2C_ADDRESS, &reg, 1, true);
+    i2c_read_blocking(i2c0, ENCODER_I2C_ADDRESS, buf, 2, false);
+
+    // Return the raw angle by stitching the two bytes
+    // buf[0]'s bit0-bit3 are needed
+    // buf[1]'s all bits are needed
+    return ((uint16_t)(buf[0] & 0x0F) << 8) | buf[1];
 }
