@@ -1,0 +1,14 @@
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:105:5:main	10
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:322:6:SystemClock_Config	3
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:358:13:MX_ADC1_Init	3
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:412:13:MX_FDCAN1_Init	2
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:453:13:MX_I2C2_Init	4
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:498:13:MX_TIM1_Init	6
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:572:13:MX_TIM2_Init	4
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:614:13:MX_GPIO_Init	1
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:631:6:HAL_TIM_PeriodElapsedCallback	12
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:692:6:set_pwm	4
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:714:6:BSP_PB_Callback	3
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:738:17:BufferCmp8b	3
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:751:6:init_cc_desired	5
+C:/Users/sanda/OneDrive - Northwestern University/Courses/Spring 2026/ME433/ME433/HW16/FDCAN_Com_Polling/Src/main.c:772:6:Error_Handler	1

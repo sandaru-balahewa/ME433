@@ -1,0 +1,5 @@
+../Application/User/library.c:17:10:read_adc	24	static
+../Application/User/library.c:32:6:init_ina219	16	static
+../Application/User/library.c:40:7:read_ina219	24	static
+../Application/User/library.c:48:6:writeINA219	32	static
+../Application/User/library.c:58:14:readINA219	40	static
