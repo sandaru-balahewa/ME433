@@ -15,7 +15,7 @@
 #define SCK_PIN 21
 #define DATA_PIN 20
 #define CLOCK_TIME_US 1
-#define HX711_OFFSET 593000   // zero-load raw value (calibrate this)
+#define HX711_OFFSET 595000   // zero-load raw value (calibrate this)
 
 
 // Encoder Registers and addresses
@@ -25,19 +25,19 @@
 #define ANGLE_H 0x0E
 
 // Angle thresholds (raw 0-4095 units)
-#define ANGLE_FREE_LOW      2450     // below this: ramp force up (left wall)
-#define ANGLE_FREE_HIGH     3050     // above this: ramp force up (right wall)
+#define ANGLE_FREE_LOW      2250     // below this: ramp force up (left wall)
+#define ANGLE_FREE_HIGH     3250     // above this: ramp force up (right wall)
 #define ANGLE_WALL_LOW      2050     // at/below this: full left wall force
 #define ANGLE_WALL_HIGH     3450     // at/above this: full right wall force
-#define WALL_FORCE_MAX_MA   500.0f  // max desired force in mA (tune to motor)
+#define WALL_FORCE_MAX_MA   20000000.0f  // max desired force in mA (tune to motor)
 
 // PD controller gains
-#define KP  0.1f
-#define KD  0.05f
+#define KP  0.0001f
+#define KD  0.0001f
 
 // Current clamp sent to STM32 (mA)
 // ---------------------------------------------------------------------------
-#define CURRENT_MAX_MA  800.0f
+#define CURRENT_MAX_MA  1000.0f
 
 // UART to STM32
 // Pico UART1: TX=GP8, RX=GP9  →  wire GP8 to STM32 UART RX, share GND
