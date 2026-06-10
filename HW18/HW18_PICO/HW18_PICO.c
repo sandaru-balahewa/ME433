@@ -15,7 +15,7 @@
 #define SCK_PIN 21
 #define DATA_PIN 20
 #define CLOCK_TIME_US 1
-#define HX711_OFFSET        580000   // zero-load raw value (calibrate this)
+#define HX711_OFFSET 580000   // zero-load raw value (calibrate this)
 
 
 // Encoder Registers and addresses
@@ -87,6 +87,9 @@ static void mcp_reset();
 static void can_init();
 static void can_send_float(float value);
 
+// Compute desired force from force-angle plot
+static float compute_desired_force(uint16_t angle);
+
 
 int main()
 {
@@ -95,7 +98,7 @@ int main()
     // Initialize force sensor
     init_hx711();
 
-    // I2C Initialisation. Using it at 400Khz.
+    // I2C and encoder initialisation. Using it at 400Khz.
     i2c_init(I2C_PORT, 400*1000);
     
     gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
@@ -106,37 +109,35 @@ int main()
     sleep_ms(10);
     initialize_encoder();
 
+    // CAN initialization
+    can_init();
+
+    float prev_error = 0.0f;
+    const float dt = 0.01f;   // 100 Hz loop (sleep_ms(10) below)
+
     while (true) {
-        uint16_t raw_angle = read_raw_angle();
-        printf("%d\n", raw_angle);
-        sleep_ms(10);
-
-        // Force sensor existing code
-        // int num = 0;
-        // int val_arr[1000];
-        // int raw_arr[1000];
-        // uint64_t t[1000];
-
-        // // Wait for the computer to send a number of samples to collect
-        // scanf("%d", &num);
-        // int avg = 580000;
-
-        // // Read and store the asked number of samples from HX711
-        // for (int i=0; i<num; i++){
-        //     int val = -hx711_read_raw(); // Multiply by negative 1 because the sensor outputs negative numbers
-        //     raw_arr[i] = val;
-        //     // IIR filter
-        //     avg = val*0.2 + avg*0.8;
-        //     val_arr[i] = avg;
-        //     t[i] = to_ms_since_boot(get_absolute_time());
-        // }
-
-        // // Print all the samples back to the serial monitor
-        // for (int i=0; i<num; i++){
-        //     printf("%d %llu %d %d\n", i, t[i], raw_arr[i], val_arr[i]);
-        // }
-
-        
+        uint16_t angle       = read_raw_angle();
+        float actual_force   = (float)hx711_read_raw();
+        float desired_force  = compute_desired_force(angle);
+ 
+        // PD controller
+        float error      = desired_force - actual_force;
+        float derivative = (error - prev_error) / dt;
+        float desired_current_ma = KP * error + KD * derivative;
+        prev_error = error;
+ 
+        // Clamp
+        if (desired_current_ma >  CURRENT_MAX_MA) desired_current_ma =  CURRENT_MAX_MA;
+        if (desired_current_ma < -CURRENT_MAX_MA) desired_current_ma = -CURRENT_MAX_MA;
+ 
+        // Send to STM32 over CAN
+        can_send_float(desired_current_ma);
+ 
+        // Debug to serial (comment out if too slow)
+        printf("angle=%4u  f_des=%7.1f  f_act=%7.1f  i_des=%7.1f mA\n",
+               angle, desired_force, actual_force, desired_current_ma);
+ 
+        sleep_ms(10);   // ~100 Hz
     }
 }
 
@@ -305,4 +306,33 @@ static void can_send_float(float value) {
     cs_low();
     spi_write_blocking(SPI_PORT, &rts, 1);
     cs_high();
+}
+
+
+// ---------------------------------------------------------------------------
+// Haptic wall: compute desired force from raw angle
+//
+//  ANGLE_WALL_LOW    ANGLE_FREE_LOW     ANGLE_FREE_HIGH    ANGLE_WALL_HIGH
+//       |<--- ramp up force --->|<--- zero force --->|<--- ramp up force --->|
+// ---------------------------------------------------------------------------
+static float compute_desired_force(uint16_t angle) {
+    if (angle <= ANGLE_WALL_LOW) {
+        return -WALL_FORCE_MAX_MA;   // full left wall
+    }
+    if (angle >= ANGLE_WALL_HIGH) {
+        return  WALL_FORCE_MAX_MA;   // full right wall
+    }
+    if (angle >= ANGLE_FREE_LOW && angle <= ANGLE_FREE_HIGH) {
+        return 0.0f;                 // free middle zone
+    }
+    if (angle < ANGLE_FREE_LOW) {
+        // left ramp: ANGLE_WALL_LOW -> ANGLE_FREE_LOW maps to -MAX -> 0
+        float t = (float)(angle - ANGLE_WALL_LOW) /
+                  (float)(ANGLE_FREE_LOW - ANGLE_WALL_LOW);
+        return -WALL_FORCE_MAX_MA * (1.0f - t);
+    }
+    // right ramp: ANGLE_FREE_HIGH -> ANGLE_WALL_HIGH maps to 0 -> +MAX
+    float t = (float)(angle - ANGLE_FREE_HIGH) /
+              (float)(ANGLE_WALL_HIGH - ANGLE_FREE_HIGH);
+    return WALL_FORCE_MAX_MA * t;
 }
