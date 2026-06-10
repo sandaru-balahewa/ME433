@@ -56,7 +56,7 @@ target_include_directories(HW18_PICO PRIVATE
 # Add any user requested libraries
 target_link_libraries(HW18_PICO 
         hardware_i2c
-        hardware_spi
+        hardware_uart
         )
 
 pico_add_extra_outputs(HW18_PICO)
