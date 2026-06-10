@@ -3,6 +3,7 @@
 #include "hardware/i2c.h"
 #include <math.h>
 #include "hardware/uart.h"
+#include "can.h"
 
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
@@ -29,27 +30,30 @@
 #define ANGLE_FREE_HIGH     3250     // above this: ramp force up (right wall)
 #define ANGLE_WALL_LOW      2050     // at/below this: full left wall force
 #define ANGLE_WALL_HIGH     3450     // at/above this: full right wall force
-#define WALL_FORCE_MAX_MA   20000000.0f  // max desired force in mA (tune to motor)
+#define WALL_FORCE_MAX_MA   10000.0f  // max desired force in mA (tune to motor)
 
 // PD controller gains
-#define KP  0.0001f
-#define KD  0.0001f
+#define KP  -0.1f
+#define KD  0.0f
 
 // Current clamp sent to STM32 (mA)
 // ---------------------------------------------------------------------------
 #define CURRENT_MAX_MA  1000.0f
 
-// UART to STM32
-// Pico UART1: TX=GP8, RX=GP9  →  wire GP8 to STM32 UART RX, share GND
-// ---------------------------------------------------------------------------
-#define UART_ID     uart1
-#define UART_TX     8
-#define UART_RX     9
-#define UART_BAUD   115200
+// // UART to STM32
+// // Pico UART1: TX=GP8, RX=GP9  →  wire GP8 to STM32 UART RX, share GND
+// // ---------------------------------------------------------------------------
+// #define UART_ID     uart1
+// #define UART_TX     8
+// #define UART_RX     9
+// #define UART_BAUD   115200
 
-// UART function prototypes
-static void uart_to_stm32_init();
-static void uart_send_float(float value);
+// // UART function prototypes
+// static void uart_to_stm32_init();
+// static void uart_send_float(float value);
+
+// CAN
+#define CAN_ID 0x150
 
 // Encoder function prototypes
 void initialize_encoder(void);
@@ -81,20 +85,34 @@ int main()
     sleep_ms(10);
     initialize_encoder();
 
-    // UART initialization
-    uart_to_stm32_init();
+    // // UART initialization
+    // uart_to_stm32_init();
+
+    // CAN init
+    can_init();
 
     float prev_error = 0.0f;
     const float dt = 0.01f;   // 100 Hz loop (sleep_ms(10) below)
 
     while (true) {
         uint16_t angle       = read_raw_angle();
-        float actual_force   = (float)hx711_read_raw();
+        float force_raw   = (float)hx711_read_raw();
         float desired_force  = compute_desired_force(angle);
+
+        // low pass filter the force as it's noisy
+        static float force_filt = 0.0f;
+
+        float actual_force = 0.95*force_filt + 0.05*force_raw;
+
  
         // printf("%f\n", actual_force);
         // PD controller
+
         float error      = desired_force - actual_force;
+
+        if (fabsf(error) < 500.0f){
+            error = 0.0f;
+        }
         float derivative = (error - prev_error) / dt;
         float desired_current_ma = KP * error + KD * derivative;
         prev_error = error;
@@ -103,8 +121,15 @@ int main()
         if (desired_current_ma >  CURRENT_MAX_MA) desired_current_ma =  CURRENT_MAX_MA;
         if (desired_current_ma < -CURRENT_MAX_MA) desired_current_ma = -CURRENT_MAX_MA;
  
-        // Send to STM32 over UART
-        uart_send_float(desired_current_ma);
+        // // Send to STM32 over UART
+        // uart_send_float(desired_current_ma);
+
+        // Send desired current to STM32 using CAN
+        bool acked = can_send_float(CAN_ID, desired_current_ma);
+ 
+        // if (!acked) {
+        //     printf("CAN no ACK\n");
+        // }
  
         // Debug to serial (comment out if too slow)
         printf("angle=%4u  f_des=%7.1f  f_act=%7.1f  i_des=%7.1f mA\n",
@@ -230,15 +255,15 @@ static float compute_desired_force(uint16_t angle) {
     return WALL_FORCE_MAX_MA * t;
 }
 
-// UART Functions
+// // UART Functions
 
-static void uart_to_stm32_init() {
-    uart_init(UART_ID, UART_BAUD);
-    gpio_set_function(UART_TX, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX, GPIO_FUNC_UART);
-}
+// static void uart_to_stm32_init() {
+//     uart_init(UART_ID, UART_BAUD);
+//     gpio_set_function(UART_TX, GPIO_FUNC_UART);
+//     gpio_set_function(UART_RX, GPIO_FUNC_UART);
+// }
  
-// Send desired current as 4 raw float bytes
-static void uart_send_float(float value) {
-    uart_write_blocking(UART_ID, (uint8_t *)&value, sizeof(float));
-}
+// // Send desired current as 4 raw float bytes
+// static void uart_send_float(float value) {
+//     uart_write_blocking(UART_ID, (uint8_t *)&value, sizeof(float));
+// }
