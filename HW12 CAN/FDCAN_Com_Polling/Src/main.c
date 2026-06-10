@@ -33,8 +33,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TX_ID          (0x111)   /* TX CAN message identifier    */
-#define RX_ID          (0x111)   /* RX CAN message identifier    */
+#define TX_ID          (0x110)   /* TX CAN message identifier    */
+#define RX_ID          (0x110)   /* RX CAN message identifier    */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -52,8 +52,7 @@ FDCAN_HandleTypeDef hfdcan1;
 FDCAN_RxHeaderTypeDef rxHeader;
 FDCAN_TxHeaderTypeDef txHeader;
 uint8_t rxData[16U];
-static const uint8_t txData[] = {0x10, 0x32, 0x54, 0x76, 0x98, 0x00, 0x11, 0x22,
-                                 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00
+static const uint8_t txData[] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'
                                 };
 
 /* USER CODE END PV */
@@ -217,10 +216,12 @@ int main(void)
     {
       /* Turn LED1 on */
       BSP_LED_On(LED1);
+      printf("Message: %s\n", rxData);
     }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
