@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(HW18_PICO HW18_PICO.c )
+add_executable(HW18_PICO HW18_PICO.c can.c)
 
 pico_set_program_name(HW18_PICO "HW18_PICO")
 pico_set_program_version(HW18_PICO "0.1")
