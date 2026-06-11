@@ -117,8 +117,8 @@ def draw_terrain(surf, terrain_px, h):
     pygame.draw.polygon(surf, GROUND_FILL, poly)
     pygame.draw.lines(surf, TERRAIN_COL, False, terrain_px, 5)
 
-def draw_character(surf, cx, cy, wheel_r=10):
-    body_r = 14
+def draw_character(surf, cx, cy, wheel_r=15):
+    body_r = 28
     pygame.draw.circle(surf, CHAR_WHEEL, (int(cx - body_r + 4), int(cy + body_r - 2)), wheel_r)
     pygame.draw.circle(surf, CHAR_WHEEL, (int(cx + body_r - 4), int(cy + body_r - 2)), wheel_r)
     pygame.draw.circle(surf, CHAR_COL,   (int(cx), int(cy)), body_r)
