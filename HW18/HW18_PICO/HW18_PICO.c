@@ -30,13 +30,13 @@
 #define ANGLE_FREE_HIGH     3150     // above this: ramp force up (right wall)
 #define ANGLE_WALL_LOW      2050     // at/below this: full left wall force
 #define ANGLE_WALL_HIGH     3450     // at/above this: full right wall force
-#define WALL_FORCE_MAX_MA   25000.0f  // max desired force in mA (tune to motor)
+#define WALL_FORCE_MAX_MA   75000.0f  // max desired force in mA (tune to motor)
 
 #define ASSIST_FORCE 5000.0f
 
 // PD controller gains
 #define KP  0.03f
-#define KD  0.0005f
+#define KD  0.0001f
 
 // Current clamp sent to STM32 (mA)
 // ---------------------------------------------------------------------------
