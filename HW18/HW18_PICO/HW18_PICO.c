@@ -32,11 +32,11 @@
 #define ANGLE_WALL_HIGH     3450     // at/above this: full right wall force
 #define WALL_FORCE_MAX_MA   75000.0f  // max desired force in mA (tune to motor)
 
-#define ASSIST_FORCE 5000.0f
+#define ASSIST_FORCE 7500.0f
 
 // PD controller gains
 #define KP  0.03f
-#define KD  0.0001f
+#define KD  0.00025f
 
 // Current clamp sent to STM32 (mA)
 // ---------------------------------------------------------------------------
@@ -160,14 +160,17 @@ int main()
 
         // Send desired current to STM32 using CAN
         bool acked = can_send_float(CAN_ID, desired_current_ma);
+
+        // Print raw angle for graphics
+        printf("%d\n", angle);
  
         // if (!acked) {
         //     printf("CAN no ACK\n");
         // }
  
         // Debug to serial (comment out if too slow)
-        printf("angle=%4u  f_des=%7.1f  f_act=%7.1f  i_des=%7.1f mA\n",
-               angle, desired_force, actual_force, desired_current_ma);
+        // printf("angle=%4u  f_des=%7.1f  f_act=%7.1f  i_des=%7.1f mA\n",
+        //        angle, desired_force, actual_force, desired_current_ma);
  
         sleep_ms(10);   // ~100 Hz
     }
